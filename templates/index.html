@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block titulo %}Pacientes{% endblock %}
+
+{% block conteudo %}
+<h1 class="titulo-pagina">Pacientes</h1>
+<p class="subtitulo">
+  {% if pacientes %}
+    {{ pacientes|length }} paciente{{ 's' if pacientes|length != 1 else '' }} ativo{{ 's' if pacientes|length != 1 else '' }}
+  {% else %}
+    Nenhum paciente cadastrado ainda
+  {% endif %}
+</p>
+
+<!-- Campo de busca com filtro instantâneo (sem recarregar página) -->
+<div class="busca-wrap">
+  <span class="busca-icone">🔍</span>
+  <input class="busca-input" type="search" id="busca"
+         placeholder="Buscar paciente..." autocomplete="off">
+</div>
+
+<!-- Botões visíveis no desktop -->
+<div class="barra-acoes">
+  <a href="{{ url_for('novo_paciente') }}" class="botao botao-primario">+ Novo Paciente</a>
+  <a href="{{ url_for('agenda_diaria') }}"  class="botao botao-secundario">💊 Ver Agenda</a>
+</div>
+
+{% if pacientes %}
+  <div class="grid-pacientes" id="lista-pacientes">
+    {% for p in pacientes %}
+    <a href="{{ url_for('detalhe_paciente', paciente_id=p.id) }}"
+       class="card-paciente"
+       data-nome="{{ p.nome|lower }}">
+      <!-- Avatar com inicial do nome -->
+      <div class="card-avatar">{{ p.nome[0]|upper }}</div>
+      <div class="card-corpo">
+        <div class="card-paciente-nome">{{ p.nome }}</div>
+        <div class="card-info">
+          {% if p.idade %}{{ p.idade }} anos{% endif %}
+          {% if p.sexo %} · {{ p.sexo }}{% endif %}
+          {% if p.quarto %} · Quarto {{ p.quarto }}{% endif %}
+        </div>
+        <div class="card-estatisticas">
+          <div class="stat">
+            <span class="stat-numero">{{ p.total_condicoes }}</span>&nbsp;condições
+          </div>
+          <div class="stat">
+            <span class="stat-numero">{{ p.total_medicamentos }}</span>&nbsp;remédios
+          </div>
+        </div>
+      </div>
+      <div class="card-seta">›</div>
+    </a>
+    {% endfor %}
+  </div>
+
+  <!-- Aparece quando a busca não encontra nada -->
+  <div id="busca-vazio" style="display:none" class="vazio">
+    <span class="vazio-icone">🔍</span>
+    <h2 class="vazio-titulo">Nenhum resultado</h2>
+    <p class="vazio-texto">Tente outro nome.</p>
+  </div>
+
+{% else %}
+  <div class="vazio">
+    <span class="vazio-icone">👵🏻</span>
+    <h2 class="vazio-titulo">Nenhum paciente cadastrado</h2>
+    <p class="vazio-texto">Comece cadastrando o primeiro paciente.</p>
+    <a href="{{ url_for('novo_paciente') }}" class="botao botao-primario">
+      Cadastrar Primeiro Paciente
+    </a>
+  </div>
+{% endif %}
+
+<!-- Botão flutuante + (mobile) -->
+<a href="{{ url_for('novo_paciente') }}" class="fab"
+   title="Novo paciente" aria-label="Cadastrar novo paciente">＋</a>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Filtro de busca client-side — sem recarregar a página
+const input  = document.getElementById('busca');
+const cards  = document.querySelectorAll('.card-paciente');
+const semRes = document.getElementById('busca-vazio');
+
+if (input) {
+  input.addEventListener('input', () => {
+    const q = input.value.toLowerCase().trim();
+    let visiveis = 0;
+    cards.forEach(card => {
+      const nome = card.dataset.nome || '';
+      const mostrar = !q || nome.includes(q);
+      card.style.display = mostrar ? '' : 'none';
+      if (mostrar) visiveis++;
+    });
+    if (semRes) semRes.style.display = (q && visiveis === 0) ? '' : 'none';
+  });
+}
+</script>
+{% endblock %}

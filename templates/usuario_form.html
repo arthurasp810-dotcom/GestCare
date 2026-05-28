@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block titulo %}Novo Usuário{% endblock %}
+
+{% block conteudo %}
+<h1 class="titulo-pagina">Novo Usuário</h1>
+<p class="subtitulo">Crie o acesso para um novo funcionário</p>
+
+<form method="POST" class="formulario">
+  <div class="form-grupo">
+    <label class="form-label" for="nome">
+      Nome completo <span class="form-obrigatorio">*</span>
+    </label>
+    <input type="text" id="nome" name="nome" class="form-input"
+           required placeholder="Nome do funcionário">
+  </div>
+
+  <div class="form-grupo">
+    <label class="form-label" for="email">
+      E-mail <span class="form-obrigatorio">*</span>
+    </label>
+    <input type="email" id="email" name="email" class="form-input"
+           required placeholder="email@laridosos.com">
+  </div>
+
+  <div class="form-grupo">
+    <label class="form-label" for="senha">
+      Senha <span class="form-obrigatorio">*</span>
+    </label>
+    <input type="password" id="senha" name="senha" class="form-input"
+           required placeholder="Mínimo 6 caracteres">
+    <div class="form-ajuda">O funcionário pode trocar a senha depois de entrar.</div>
+  </div>
+
+  <div class="form-grupo">
+    <label class="form-label" for="perfil">Perfil de acesso</label>
+    <select id="perfil" name="perfil" class="form-select">
+      <option value="enfermeiro">Enfermeiro — acesso ao dia a dia</option>
+      <option value="admin">Administrador — acesso total + usuários</option>
+    </select>
+  </div>
+
+  <div class="form-botoes">
+    <button type="submit" class="botao botao-primario">Criar Usuário</button>
+    <a href="{{ url_for('listar_usuarios') }}" class="botao botao-secundario">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

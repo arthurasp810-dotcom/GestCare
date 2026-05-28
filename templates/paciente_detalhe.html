@@ -1,0 +1,305 @@
+{% extends "base.html" %}
+{% block titulo %}{{ paciente.nome }}{% endblock %}
+ 
+{% block conteudo %}
+ 
+<!-- Cabeçalho do paciente -->
+<div class="paciente-cabecalho">
+  <div class="paciente-topo">
+    <div class="paciente-avatar">{{ paciente.nome[0]|upper }}</div>
+    <div>
+      <div class="paciente-nome">{{ paciente.nome }}</div>
+      <div class="paciente-sub">
+        {% if paciente.idade %}{{ paciente.idade }} anos{% endif %}
+        {% if paciente.sexo %} · {{ paciente.sexo }}{% endif %}
+        {% if paciente.quarto %} · Quarto <strong>{{ paciente.quarto }}</strong>{% endif %}
+      </div>
+    </div>
+  </div>
+ 
+  <div class="paciente-dados-grid">
+    {% if paciente.data_nascimento %}
+    <div class="dado-item">
+      <div class="dado-label">Nascimento</div>
+      <div class="dado-valor">{{ paciente.data_nascimento }}</div>
+    </div>
+    {% endif %}
+    {% if paciente.cpf %}
+    <div class="dado-item">
+      <div class="dado-label">CPF</div>
+      <div class="dado-valor">{{ paciente.cpf }}</div>
+    </div>
+    {% endif %}
+    {% if paciente.rg %}
+    <div class="dado-item">
+      <div class="dado-label">RG</div>
+      <div class="dado-valor">{{ paciente.rg }}</div>
+    </div>
+    {% endif %}
+    {% if paciente.telefone %}
+    <div class="dado-item">
+      <div class="dado-label">Telefone</div>
+      <div class="dado-valor">{{ paciente.telefone }}</div>
+    </div>
+    {% endif %}
+    {% if paciente.contato_emergencia_nome %}
+    <div class="dado-item">
+      <div class="dado-label">Emergência</div>
+      <div class="dado-valor">
+        {{ paciente.contato_emergencia_nome }}
+        {% if paciente.contato_emergencia_parentesco %}
+          ({{ paciente.contato_emergencia_parentesco }})
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+    {% if paciente.contato_emergencia_telefone %}
+    <div class="dado-item">
+      <div class="dado-label">Tel. Emergência</div>
+      <div class="dado-valor">{{ paciente.contato_emergencia_telefone }}</div>
+    </div>
+    {% endif %}
+  </div>
+ 
+  {% if paciente.observacoes %}
+  <div class="paciente-obs">
+    <div class="paciente-obs-label">Observações</div>
+    <div>{{ paciente.observacoes }}</div>
+  </div>
+  {% endif %}
+</div>
+ 
+<!-- Ações -->
+<div class="barra-acoes">
+  <a href="{{ url_for('editar_paciente', paciente_id=paciente.id) }}"
+     class="botao botao-secundario">✏️ Editar</a>
+  <a href="{{ url_for('index') }}" class="botao botao-secundario">← Voltar</a>
+  <form method="POST" action="{{ url_for('excluir_paciente', paciente_id=paciente.id) }}"
+        onsubmit="return confirm('Remover este paciente? Todos os dados serão apagados.');"
+        style="margin-left:auto">
+    <button type="submit" class="botao botao-perigo botao-pequeno">🗑️ Remover</button>
+  </form>
+</div>
+ 
+<!-- Seção: Condições -->
+<div class="secao">
+  <div class="secao-cabecalho">
+    <h2 class="secao-titulo">Condições e Doenças</h2>
+    <button class="botao botao-primario botao-pequeno"
+            onclick="abrirModal('modal-condicao')">+ Adicionar</button>
+  </div>
+ 
+  {% if condicoes %}
+    <div class="lista-condicoes">
+      {% for c in condicoes %}
+      <div class="condicao-item">
+        <div class="condicao-info">
+          <div class="condicao-nome">
+            {{ c.nome }}
+            {% if c.gravidade %}
+              <span class="tag-gravidade gravidade-{{ c.gravidade|lower }}">{{ c.gravidade }}</span>
+            {% endif %}
+          </div>
+          {% if c.descricao %}
+            <div class="condicao-detalhes">{{ c.descricao }}</div>
+          {% endif %}
+          {% if c.data_diagnostico %}
+            <div class="condicao-detalhes">
+              <small>Diagnóstico: {{ c.data_diagnostico }}</small>
+            </div>
+          {% endif %}
+        </div>
+        <form method="POST"
+              action="{{ url_for('excluir_condicao', condicao_id=c.id) }}"
+              onsubmit="return confirm('Remover esta condição?');">
+          <button type="submit" class="botao botao-perigo botao-pequeno">Remover</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p style="color:var(--cor-texto-suave);text-align:center;padding:1rem">
+      Nenhuma condição cadastrada.
+    </p>
+  {% endif %}
+</div>
+ 
+<!-- Seção: Medicamentos -->
+<div class="secao">
+  <div class="secao-cabecalho">
+    <h2 class="secao-titulo">Medicamentos</h2>
+    <button class="botao botao-primario botao-pequeno"
+            onclick="abrirModal('modal-medicamento')">+ Adicionar</button>
+  </div>
+ 
+  {% if medicamentos %}
+    <div class="lista-medicamentos">
+      {% for m in medicamentos %}
+      <div class="medicamento-item">
+        <div class="medicamento-cabecalho">
+          <div>
+            <div class="medicamento-nome">{{ m.nome }}</div>
+            {% if m.dosagem %}
+              <div class="medicamento-dosagem">{{ m.dosagem }}</div>
+            {% endif %}
+            {% if m.via_administracao %}
+              <span class="medicamento-via">{{ m.via_administracao }}</span>
+            {% endif %}
+          </div>
+        </div>
+ 
+        {% if m.horarios %}
+        <div>
+          <small style="color:var(--cor-texto-suave);font-weight:700;
+                        font-size:.75rem;text-transform:uppercase">Horários:</small>
+          <div class="horarios-tags">
+            {% for h in m.horarios %}
+              <span class="horario-tag">🕐 {{ h[:5] }}</span>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+ 
+        {% if m.instrucoes %}
+        <div class="medicamento-instrucoes">
+          <strong>Instruções:</strong> {{ m.instrucoes }}
+        </div>
+        {% endif %}
+ 
+        <div class="medicamento-acoes">
+          <form method="POST"
+                action="{{ url_for('administrar_dose', medicamento_id=m.id) }}">
+            <button type="submit" class="botao botao-primario botao-pequeno">
+              ✓ Registrar Dose
+            </button>
+          </form>
+          <form method="POST"
+                action="{{ url_for('excluir_medicamento', medicamento_id=m.id) }}"
+                onsubmit="return confirm('Remover este medicamento?');">
+            <button type="submit" class="botao botao-perigo botao-pequeno">
+              Remover
+            </button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p style="color:var(--cor-texto-suave);text-align:center;padding:1rem">
+      Nenhum medicamento cadastrado.
+    </p>
+  {% endif %}
+</div>
+ 
+<!-- Modal: Nova Condição -->
+<div class="modal" id="modal-condicao">
+  <div class="modal-conteudo">
+    <div class="modal-alca"></div>
+    <div class="modal-cabecalho">
+      <h3 class="modal-titulo">Adicionar Condição</h3>
+      <button class="modal-fechar" onclick="fecharModal('modal-condicao')"
+              type="button">×</button>
+    </div>
+    <form method="POST" action="{{ url_for('nova_condicao', paciente_id=paciente.id) }}">
+      <div class="form-grupo">
+        <label class="form-label" for="cond_nome">
+          Nome da Condição <span class="form-obrigatorio">*</span>
+        </label>
+        <input type="text" id="cond_nome" name="nome" class="form-input" required
+               placeholder="Ex: Hipertensão, Diabetes Tipo 2...">
+      </div>
+      <div class="form-linha">
+        <div class="form-grupo">
+          <label class="form-label" for="cond_gravidade">Gravidade</label>
+          <select id="cond_gravidade" name="gravidade" class="form-select">
+            <option value="">Selecione...</option>
+            <option value="Leve">Leve</option>
+            <option value="Moderada">Moderada</option>
+            <option value="Grave">Grave</option>
+          </select>
+        </div>
+        <div class="form-grupo">
+          <label class="form-label" for="cond_data">Data do Diagnóstico</label>
+          <input type="date" id="cond_data" name="data_diagnostico" class="form-input">
+        </div>
+      </div>
+      <div class="form-grupo">
+        <label class="form-label" for="cond_desc">Notas</label>
+        <textarea id="cond_desc" name="descricao" class="form-textarea" rows="3"
+                  placeholder="Detalhes, notas médicas..."></textarea>
+      </div>
+      <div class="form-botoes">
+        <button type="submit" class="botao botao-primario">Adicionar</button>
+        <button type="button" class="botao botao-secundario"
+                onclick="fecharModal('modal-condicao')">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+ 
+<!-- Modal: Novo Medicamento -->
+<div class="modal" id="modal-medicamento">
+  <div class="modal-conteudo">
+    <div class="modal-alca"></div>
+    <div class="modal-cabecalho">
+      <h3 class="modal-titulo">Adicionar Medicamento</h3>
+      <button class="modal-fechar" onclick="fecharModal('modal-medicamento')"
+              type="button">×</button>
+    </div>
+    <form method="POST" action="{{ url_for('novo_medicamento', paciente_id=paciente.id) }}">
+      <div class="form-grupo">
+        <label class="form-label" for="med_nome">
+          Nome <span class="form-obrigatorio">*</span>
+        </label>
+        <input type="text" id="med_nome" name="nome" class="form-input" required
+               placeholder="Ex: Losartana, Metformina...">
+      </div>
+      <div class="form-linha">
+        <div class="form-grupo">
+          <label class="form-label" for="med_dosagem">Dosagem</label>
+          <input type="text" id="med_dosagem" name="dosagem" class="form-input"
+                 placeholder="Ex: 50mg, 1 comprimido...">
+        </div>
+        <div class="form-grupo">
+          <label class="form-label" for="med_via">Via</label>
+          <select id="med_via" name="via_administracao" class="form-select">
+            <option value="">Selecione...</option>
+            <option value="Oral">Oral</option>
+            <option value="Sublingual">Sublingual</option>
+            <option value="Tópica">Tópica</option>
+            <option value="Injetável">Injetável</option>
+            <option value="Inalatória">Inalatória</option>
+            <option value="Oftálmica">Oftálmica (Olhos)</option>
+            <option value="Retal">Retal</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grupo">
+        <label class="form-label">Horários <span class="form-obrigatorio">*</span></label>
+        <div id="horarios-container" class="horarios-lista">
+          <div class="horario-item">
+            <input type="time" name="horarios[]" class="form-input" required>
+            <button type="button" class="btn-remover-horario"
+                    onclick="removerHorario(this)">Remover</button>
+          </div>
+        </div>
+        <button type="button" class="btn-adicionar-horario"
+                onclick="adicionarHorario('horarios-container')">
+          + Adicionar horário
+        </button>
+      </div>
+      <div class="form-grupo">
+        <label class="form-label" for="med_instr">Instruções</label>
+        <textarea id="med_instr" name="instrucoes" class="form-textarea" rows="2"
+                  placeholder="Ex: Tomar após refeições..."></textarea>
+      </div>
+      <div class="form-botoes">
+        <button type="submit" class="botao botao-primario">Adicionar Medicamento</button>
+        <button type="button" class="botao botao-secundario"
+                onclick="fecharModal('modal-medicamento')">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+ 
+{% endblock %}

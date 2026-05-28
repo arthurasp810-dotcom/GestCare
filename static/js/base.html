@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sistema de gestão para casa de idosos">
+    <title>{% block titulo %}Casa de Idosos{% endblock %} - Sistema de Gestão</title>
+
+    <!-- Fontes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="cabecalho">
+        <div class="cabecalho-container">
+            <a href="{{ url_for('index') }}" class="logo">
+                <span class="logo-icon">🏡</span>
+                <span>Casa de Idosos</span>
+            </a>
+            <nav class="nav-menu">
+                <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}ativo{% endif %}">
+                    Pacientes
+                </a>
+                <a href="{{ url_for('agenda_diaria') }}" class="nav-link {% if request.endpoint == 'agenda_diaria' %}ativo{% endif %}">
+                    Agenda
+                </a>
+                <a href="{{ url_for('novo_paciente') }}" class="nav-link {% if request.endpoint == 'novo_paciente' %}ativo{% endif %}">
+                    Novo Cadastro
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="conteudo">
+        {% with mensagens = get_flashed_messages(with_categories=true) %}
+            {% if mensagens %}
+                {% for categoria, msg in mensagens %}
+                    <div class="alerta alerta-{{ categoria }}">{{ msg }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block conteudo %}{% endblock %}
+    </main>
+
+    <footer class="rodape">
+        <p>Sistema de Gestão — Casa de Idosos &middot; Desenvolvido com cuidado para cuidadores</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
