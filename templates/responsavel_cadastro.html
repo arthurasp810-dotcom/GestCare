@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#2d6a7a">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='icons/favicon-32.png') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/apple-touch-icon.png') }}">
+  <title>Cadastro do Responsável - GestCare</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1rem">
+
+<div style="width:100%;max-width:420px">
+  {% with mensagens = get_flashed_messages(with_categories=true) %}
+    {% if mensagens %}
+      {% for categoria, msg in mensagens %}
+        <div class="alerta alerta-{{ categoria }}">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="formulario">
+    <div style="text-align:center;margin-bottom:1.5rem">
+      <div style="font-size:3rem">💙</div>
+      <h1 style="font-family:var(--fonte-titulo);font-size:1.6rem;color:var(--cor-primaria-escura);margin-bottom:.25rem">Cadastro do Responsável</h1>
+      <p style="color:var(--cor-texto-suave);font-size:.9rem">Crie sua própria conta para acompanhar o idoso</p>
+    </div>
+
+    <form method="POST">
+      <div class="form-grupo">
+        <label class="form-label" for="casa_id">Instituição do idoso</label>
+        <select id="casa_id" name="casa_id" class="form-input" required>
+          <option value="">— Selecione a casa —</option>
+          {% for c in casas %}
+          <option value="{{ c.id }}">{{ c.nome }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-grupo">
+        <label class="form-label" for="nome">Seu nome completo</label>
+        <input type="text" id="nome" name="nome" class="form-input" required autofocus
+               placeholder="Seu nome">
+      </div>
+      <div class="form-grupo">
+        <label class="form-label" for="cpf">Seu CPF</label>
+        <input type="text" id="cpf" name="cpf" class="form-input" required
+               placeholder="000.000.000-00" data-formato="cpf">
+      </div>
+      <div class="form-grupo">
+        <label class="form-label" for="email">Seu e-mail</label>
+        <input type="email" id="email" name="email" class="form-input" required
+               placeholder="email@exemplo.com">
+      </div>
+      <div class="form-grupo">
+        <label class="form-label" for="senha">Crie uma senha</label>
+        <input type="password" id="senha" name="senha" class="form-input" required
+               minlength="6" placeholder="Mínimo 6 caracteres">
+      </div>
+      <div class="form-grupo">
+        <label class="form-label" for="confirmar_senha">Confirme a senha</label>
+        <input type="password" id="confirmar_senha" name="confirmar_senha" class="form-input" required
+               minlength="6" placeholder="Repita a senha">
+      </div>
+      <div class="form-botoes" style="margin-top:1.25rem">
+        <button type="submit" class="botao botao-primario" style="width:100%">Criar minha conta</button>
+      </div>
+    </form>
+
+    <p style="text-align:center;margin-top:1.25rem;font-size:.9rem;color:var(--cor-texto-suave)">
+      Já tem conta? <a href="{{ url_for('login') }}" style="color:var(--cor-primaria);font-weight:700">Entrar</a>
+    </p>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

@@ -2,6 +2,28 @@
 {% block titulo %}Pacientes{% endblock %}
 
 {% block conteudo %}
+
+{% if alertas_antibiotico %}
+<div class="secao" style="border-left:4px solid var(--cor-erro);background:#fff5f5;margin-bottom:1rem">
+  <h2 class="secao-titulo" style="margin-bottom:.5rem">💊 Lembrete de Antibiótico</h2>
+  {% for a in alertas_antibiotico %}
+  <div style="padding:.5rem 0;border-bottom:1px solid var(--cor-borda)">
+    <a href="{{ url_for('detalhe_paciente', paciente_id=a.paciente_id) }}" style="font-weight:700">{{ a.paciente_nome }}</a>
+    — {{ a.nome }}
+    {% if a.dias_restantes is not none %}
+      {% if a.dias_restantes < 0 %}
+        <span style="color:var(--cor-erro);font-weight:600">tratamento encerrado há {{ -a.dias_restantes }} dia(s)</span>
+      {% elif a.dias_restantes == 0 %}
+        <span style="color:var(--cor-erro);font-weight:600">termina hoje</span>
+      {% else %}
+        <span style="color:var(--cor-erro);font-weight:600">termina em {{ a.dias_restantes }} dia(s)</span>
+      {% endif %}
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
 <h1 class="titulo-pagina">Pacientes</h1>
 <p class="subtitulo">
   {% if pacientes %}

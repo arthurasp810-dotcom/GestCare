@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block titulo %}{{ paciente.nome }}{% endblock %}
- 
+
 {% block conteudo %}
- 
+
 <!-- Cabeçalho do paciente -->
 <div class="paciente-cabecalho">
   <div class="paciente-topo">
@@ -16,7 +16,7 @@
       </div>
     </div>
   </div>
- 
+
   <div class="paciente-dados-grid">
     {% if paciente.data_nascimento %}
     <div class="dado-item">
@@ -60,7 +60,7 @@
     </div>
     {% endif %}
   </div>
- 
+
   {% if paciente.observacoes %}
   <div class="paciente-obs">
     <div class="paciente-obs-label">Observações</div>
@@ -68,7 +68,7 @@
   </div>
   {% endif %}
 </div>
- 
+
 <!-- Ações -->
 <div class="barra-acoes">
   <a href="{{ url_for('editar_paciente', paciente_id=paciente.id) }}"
@@ -80,15 +80,32 @@
     <button type="submit" class="botao botao-perigo botao-pequeno">🗑️ Remover</button>
   </form>
 </div>
- 
-<!-- Seção: Condições -->
+
+<!-- Links rápidos para páginas separadas -->
+<div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1rem">
+  <a href="{{ url_for('listar_visitas', paciente_id=paciente.id) }}"
+     class="botao botao-secundario botao-pequeno">
+    👥 Visitas <span style="background:var(--cor-primaria);color:#fff;border-radius:20px;padding:1px 7px;font-size:11px;margin-left:4px">{{ total_visitas }}</span>
+  </a>
+  <a href="{{ url_for('listar_exames', paciente_id=paciente.id) }}"
+     class="botao botao-secundario botao-pequeno">
+    🔬 Exames <span style="background:var(--cor-primaria);color:#fff;border-radius:20px;padding:1px 7px;font-size:11px;margin-left:4px">{{ total_exames }}</span>
+  </a>
+  <a href="{{ url_for('listar_evolucoes', paciente_id=paciente.id) }}"
+     class="botao botao-secundario botao-pequeno">
+    📋 Evolução Médica <span style="background:var(--cor-primaria);color:#fff;border-radius:20px;padding:1px 7px;font-size:11px;margin-left:4px">{{ total_evolucoes }}</span>
+  </a>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SEÇÃO: Condições e Doenças
+══════════════════════════════════════════════════ -->
 <div class="secao">
   <div class="secao-cabecalho">
     <h2 class="secao-titulo">Condições e Doenças</h2>
     <button class="botao botao-primario botao-pequeno"
             onclick="abrirModal('modal-condicao')">+ Adicionar</button>
   </div>
- 
   {% if condicoes %}
     <div class="lista-condicoes">
       {% for c in condicoes %}
@@ -100,17 +117,12 @@
               <span class="tag-gravidade gravidade-{{ c.gravidade|lower }}">{{ c.gravidade }}</span>
             {% endif %}
           </div>
-          {% if c.descricao %}
-            <div class="condicao-detalhes">{{ c.descricao }}</div>
-          {% endif %}
+          {% if c.descricao %}<div class="condicao-detalhes">{{ c.descricao }}</div>{% endif %}
           {% if c.data_diagnostico %}
-            <div class="condicao-detalhes">
-              <small>Diagnóstico: {{ c.data_diagnostico }}</small>
-            </div>
+            <div class="condicao-detalhes"><small>Diagnóstico: {{ c.data_diagnostico }}</small></div>
           {% endif %}
         </div>
-        <form method="POST"
-              action="{{ url_for('excluir_condicao', condicao_id=c.id) }}"
+        <form method="POST" action="{{ url_for('excluir_condicao', condicao_id=c.id) }}"
               onsubmit="return confirm('Remover esta condição?');">
           <button type="submit" class="botao botao-perigo botao-pequeno">Remover</button>
         </form>
@@ -118,20 +130,163 @@
       {% endfor %}
     </div>
   {% else %}
-    <p style="color:var(--cor-texto-suave);text-align:center;padding:1rem">
-      Nenhuma condição cadastrada.
-    </p>
+    <p style="color:var(--cor-texto-suave);text-align:center;padding:1rem">Nenhuma condição cadastrada.</p>
   {% endif %}
 </div>
- 
-<!-- Seção: Medicamentos -->
+
+<!-- ══════════════════════════════════════════════════
+     SEÇÃO: Comorbidades e Dieta
+══════════════════════════════════════════════════ -->
+<div class="secao">
+  <div class="secao-cabecalho">
+    <h2 class="secao-titulo">🥗 Comorbidades e Alimentação</h2>
+    <button class="botao botao-primario botao-pequeno"
+            onclick="abrirModal('modal-dieta')">
+      {{ '✏️ Editar' if dieta else '+ Preencher' }}
+    </button>
+  </div>
+  {% if dieta %}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+      {% if dieta.comorbidades %}
+      <div class="dado-item" style="grid-column:1/-1">
+        <div class="dado-label">Comorbidades</div>
+        <div class="dado-valor" style="font-weight:400;font-size:.95rem">{{ dieta.comorbidades }}</div>
+      </div>
+      {% endif %}
+      {% if dieta.dieta_especifica %}
+      <div class="dado-item">
+        <div class="dado-label">Dieta Específica</div>
+        <div class="dado-valor" style="font-weight:400;font-size:.95rem">{{ dieta.dieta_especifica }}</div>
+      </div>
+      {% endif %}
+      {% if dieta.consistencia_alimento %}
+      <div class="dado-item">
+        <div class="dado-label">Consistência</div>
+        <div class="dado-valor" style="font-weight:400;font-size:.95rem">{{ dieta.consistencia_alimento }}</div>
+      </div>
+      {% endif %}
+      {% if dieta.restricoes_alimentares %}
+      <div class="dado-item">
+        <div class="dado-label">Restrições Alimentares</div>
+        <div class="dado-valor" style="font-weight:400;font-size:.95rem">{{ dieta.restricoes_alimentares }}</div>
+      </div>
+      {% endif %}
+      {% if dieta.alergias_alimentares %}
+      <div class="dado-item">
+        <div class="dado-label">Alergias Alimentares</div>
+        <div class="dado-valor" style="font-weight:400;font-size:.95rem;color:var(--cor-erro)">⚠️ {{ dieta.alergias_alimentares }}</div>
+      </div>
+      {% endif %}
+      {% if dieta.observacoes_nutricao %}
+      <div class="dado-item" style="grid-column:1/-1">
+        <div class="dado-label">Observações Nutricionais</div>
+        <div class="dado-valor" style="font-weight:400;font-size:.95rem">{{ dieta.observacoes_nutricao }}</div>
+      </div>
+      {% endif %}
+    </div>
+  {% else %}
+    <p style="color:var(--cor-texto-suave);text-align:center;padding:1rem">Nenhuma informação de dieta cadastrada.</p>
+  {% endif %}
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SEÇÃO: Ficha Psicológica
+══════════════════════════════════════════════════ -->
+<div class="secao">
+  <div class="secao-cabecalho">
+    <h2 class="secao-titulo">🧠 Ficha Psicológica</h2>
+    <button class="botao botao-primario botao-pequeno"
+            onclick="abrirModal('modal-psicologico')">
+      {{ '✏️ Editar' if ficha_psico else '+ Preencher' }}
+    </button>
+  </div>
+  {% if ficha_psico %}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+      {% if ficha_psico.antecedentes %}
+      <div class="dado-item" style="grid-column:1/-1">
+        <div class="dado-label">Antecedentes de Problemas Mentais</div>
+        <div class="dado-valor" style="font-weight:400;font-size:.95rem">{{ ficha_psico.antecedentes }}</div>
+      </div>
+      {% endif %}
+      {% if ficha_psico.diagnosticos_mentais %}
+      <div class="dado-item">
+        <div class="dado-label">Diagnósticos Psiquiátricos</div>
+        <div class="dado-valor" style="font-weight:400;font-size:.95rem">{{ ficha_psico.diagnosticos_mentais }}</div>
+      </div>
+      {% endif %}
+      {% if ficha_psico.medicacao_psiquiatrica %}
+      <div class="dado-item">
+        <div class="dado-label">Medicação Psiquiátrica</div>
+        <div class="dado-valor" style="font-weight:400;font-size:.95rem">{{ ficha_psico.medicacao_psiquiatrica }}</div>
+      </div>
+      {% endif %}
+      {% if ficha_psico.comportamento %}
+      <div class="dado-item" style="grid-column:1/-1">
+        <div class="dado-label">Comportamento Observado</div>
+        <div class="dado-valor" style="font-weight:400;font-size:.95rem">{{ ficha_psico.comportamento }}</div>
+      </div>
+      {% endif %}
+      {% if ficha_psico.observacoes %}
+      <div class="dado-item" style="grid-column:1/-1">
+        <div class="dado-label">Observações</div>
+        <div class="dado-valor" style="font-weight:400;font-size:.95rem">{{ ficha_psico.observacoes }}</div>
+      </div>
+      {% endif %}
+    </div>
+    <p style="font-size:.75rem;color:var(--cor-texto-suave);margin-top:.75rem">
+      Atualizado em: {{ ficha_psico.atualizado_em[:16] if ficha_psico.atualizado_em else '—' }}
+    </p>
+  {% else %}
+    <p style="color:var(--cor-texto-suave);text-align:center;padding:1rem">Nenhuma ficha psicológica cadastrada.</p>
+  {% endif %}
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SEÇÃO: Profissionais Consultados
+══════════════════════════════════════════════════ -->
+<div class="secao">
+  <div class="secao-cabecalho">
+    <h2 class="secao-titulo">👨‍⚕️ Profissionais Consultados</h2>
+    <button class="botao botao-primario botao-pequeno"
+            onclick="abrirModal('modal-profissional')">+ Adicionar</button>
+  </div>
+  {% if profissionais %}
+    <div class="lista-condicoes">
+      {% for prof in profissionais %}
+      <div class="condicao-item">
+        <div class="condicao-info">
+          <div class="condicao-nome">{{ prof.nome }}</div>
+          {% if prof.especialidade %}
+            <div class="condicao-detalhes">{{ prof.especialidade }}</div>
+          {% endif %}
+          {% if prof.data_consulta %}
+            <div class="condicao-detalhes"><small>Consulta: {{ prof.data_consulta }}</small></div>
+          {% endif %}
+          {% if prof.observacoes %}
+            <div class="condicao-detalhes">{{ prof.observacoes }}</div>
+          {% endif %}
+        </div>
+        <form method="POST" action="{{ url_for('excluir_profissional', prof_id=prof.id) }}"
+              onsubmit="return confirm('Remover este profissional?');">
+          <button type="submit" class="botao botao-perigo botao-pequeno">Remover</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p style="color:var(--cor-texto-suave);text-align:center;padding:1rem">Nenhum profissional registrado.</p>
+  {% endif %}
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SEÇÃO: Medicamentos
+══════════════════════════════════════════════════ -->
 <div class="secao">
   <div class="secao-cabecalho">
     <h2 class="secao-titulo">Medicamentos</h2>
     <button class="botao botao-primario botao-pequeno"
             onclick="abrirModal('modal-medicamento')">+ Adicionar</button>
   </div>
- 
   {% if medicamentos %}
     <div class="lista-medicamentos">
       {% for m in medicamentos %}
@@ -139,79 +294,97 @@
         <div class="medicamento-cabecalho">
           <div>
             <div class="medicamento-nome">{{ m.nome }}</div>
-            {% if m.dosagem %}
-              <div class="medicamento-dosagem">{{ m.dosagem }}</div>
-            {% endif %}
-            {% if m.via_administracao %}
-              <span class="medicamento-via">{{ m.via_administracao }}</span>
-            {% endif %}
+            {% if m.dosagem %}<div class="medicamento-dosagem">{{ m.dosagem }}</div>{% endif %}
+            {% if m.via_administracao %}<span class="medicamento-via">{{ m.via_administracao }}</span>{% endif %}
           </div>
         </div>
- 
         {% if m.horarios %}
         <div>
-          <small style="color:var(--cor-texto-suave);font-weight:700;
-                        font-size:.75rem;text-transform:uppercase">Horários:</small>
+          <small style="color:var(--cor-texto-suave);font-weight:700;font-size:.75rem;text-transform:uppercase">Horários:</small>
           <div class="horarios-tags">
-            {% for h in m.horarios %}
-              <span class="horario-tag">🕐 {{ h[:5] }}</span>
-            {% endfor %}
+            {% for h in m.horarios %}<span class="horario-tag">🕐 {{ h[:5] }}</span>{% endfor %}
           </div>
         </div>
         {% endif %}
- 
         {% if m.instrucoes %}
-        <div class="medicamento-instrucoes">
-          <strong>Instruções:</strong> {{ m.instrucoes }}
+        <div class="medicamento-instrucoes"><strong>Instruções:</strong> {{ m.instrucoes }}</div>
+        {% endif %}
+        {% if m.eh_antibiotico %}
+        <div style="margin-top:.4rem">
+          <span style="background:#fff5f5;color:var(--cor-erro);border:1px solid var(--cor-erro);
+                       padding:2px 8px;border-radius:20px;font-size:.75rem;font-weight:700">
+            💊 Antibiótico
+            {% if m.dias_restantes_antibiotico is not none %}
+              {% if m.dias_restantes_antibiotico < 0 %}
+                — tratamento encerrado
+              {% elif m.dias_restantes_antibiotico == 0 %}
+                — termina hoje
+              {% else %}
+                — termina em {{ m.dias_restantes_antibiotico }} dia(s)
+              {% endif %}
+            {% endif %}
+          </span>
         </div>
         {% endif %}
- 
+        {% if m.doses_hoje %}
+        <div style="font-size:.78rem;color:var(--cor-texto-suave);margin-top:.4rem">
+          ✓ {{ m.doses_hoje }} dose(s) administrada(s) hoje
+        </div>
+        {% endif %}
+        {% if m.ultimas_doses %}
+        <details style="margin-top:.4rem">
+          <summary style="cursor:pointer;font-size:.78rem;color:var(--cor-primaria);font-weight:600">
+            Ver histórico de doses administradas
+          </summary>
+          <div style="margin-top:.4rem;display:flex;flex-direction:column;gap:.3rem">
+            {% for d in m.ultimas_doses %}
+            <div style="font-size:.78rem;color:var(--cor-texto-suave);border-left:2px solid var(--cor-primaria);padding-left:.5rem">
+              ✓ {{ d.horario_administrado[:16] if d.horario_administrado else '—' }}
+              {% if d.administrado_por %} · por {{ d.administrado_por }}{% endif %}
+              {% if d.observacoes %} · {{ d.observacoes }}{% endif %}
+            </div>
+            {% endfor %}
+          </div>
+        </details>
+        {% endif %}
         <div class="medicamento-acoes">
-          <form method="POST"
-                action="{{ url_for('administrar_dose', medicamento_id=m.id) }}">
-            <button type="submit" class="botao botao-primario botao-pequeno">
-              ✓ Registrar Dose
-            </button>
+          <form method="POST" action="{{ url_for('administrar_dose', medicamento_id=m.id) }}">
+            <button type="submit" class="botao botao-primario botao-pequeno">✓ Registrar Dose</button>
           </form>
-          <form method="POST"
-                action="{{ url_for('excluir_medicamento', medicamento_id=m.id) }}"
+          <form method="POST" action="{{ url_for('excluir_medicamento', medicamento_id=m.id) }}"
                 onsubmit="return confirm('Remover este medicamento?');">
-            <button type="submit" class="botao botao-perigo botao-pequeno">
-              Remover
-            </button>
+            <button type="submit" class="botao botao-perigo botao-pequeno">Remover</button>
           </form>
         </div>
       </div>
       {% endfor %}
     </div>
   {% else %}
-    <p style="color:var(--cor-texto-suave);text-align:center;padding:1rem">
-      Nenhum medicamento cadastrado.
-    </p>
+    <p style="color:var(--cor-texto-suave);text-align:center;padding:1rem">Nenhum medicamento cadastrado.</p>
   {% endif %}
 </div>
- 
+
+<!-- ══════════════════════════════════════════════════
+     MODAIS
+══════════════════════════════════════════════════ -->
+
 <!-- Modal: Nova Condição -->
 <div class="modal" id="modal-condicao">
   <div class="modal-conteudo">
     <div class="modal-alca"></div>
     <div class="modal-cabecalho">
       <h3 class="modal-titulo">Adicionar Condição</h3>
-      <button class="modal-fechar" onclick="fecharModal('modal-condicao')"
-              type="button">×</button>
+      <button class="modal-fechar" onclick="fecharModal('modal-condicao')" type="button">×</button>
     </div>
     <form method="POST" action="{{ url_for('nova_condicao', paciente_id=paciente.id) }}">
       <div class="form-grupo">
-        <label class="form-label" for="cond_nome">
-          Nome da Condição <span class="form-obrigatorio">*</span>
-        </label>
-        <input type="text" id="cond_nome" name="nome" class="form-input" required
-               placeholder="Ex: Hipertensão, Diabetes Tipo 2...">
+        <label class="form-label">Nome da Condição <span class="form-obrigatorio">*</span></label>
+        <input type="text" name="nome" class="form-input" required placeholder="Ex: Hipertensão, Diabetes...">
       </div>
       <div class="form-linha">
         <div class="form-grupo">
-          <label class="form-label" for="cond_gravidade">Gravidade</label>
-          <select id="cond_gravidade" name="gravidade" class="form-select">
+          <label class="form-label">Gravidade</label>
+          <select name="gravidade" class="form-select">
             <option value="">Selecione...</option>
             <option value="Leve">Leve</option>
             <option value="Moderada">Moderada</option>
@@ -219,50 +392,43 @@
           </select>
         </div>
         <div class="form-grupo">
-          <label class="form-label" for="cond_data">Data do Diagnóstico</label>
-          <input type="date" id="cond_data" name="data_diagnostico" class="form-input">
+          <label class="form-label">Data do Diagnóstico</label>
+          <input type="date" name="data_diagnostico" class="form-input">
         </div>
       </div>
       <div class="form-grupo">
-        <label class="form-label" for="cond_desc">Notas</label>
-        <textarea id="cond_desc" name="descricao" class="form-textarea" rows="3"
-                  placeholder="Detalhes, notas médicas..."></textarea>
+        <label class="form-label">Notas</label>
+        <textarea name="descricao" class="form-textarea" rows="3" placeholder="Detalhes, notas médicas..."></textarea>
       </div>
       <div class="form-botoes">
         <button type="submit" class="botao botao-primario">Adicionar</button>
-        <button type="button" class="botao botao-secundario"
-                onclick="fecharModal('modal-condicao')">Cancelar</button>
+        <button type="button" class="botao botao-secundario" onclick="fecharModal('modal-condicao')">Cancelar</button>
       </div>
     </form>
   </div>
 </div>
- 
+
 <!-- Modal: Novo Medicamento -->
 <div class="modal" id="modal-medicamento">
   <div class="modal-conteudo">
     <div class="modal-alca"></div>
     <div class="modal-cabecalho">
       <h3 class="modal-titulo">Adicionar Medicamento</h3>
-      <button class="modal-fechar" onclick="fecharModal('modal-medicamento')"
-              type="button">×</button>
+      <button class="modal-fechar" onclick="fecharModal('modal-medicamento')" type="button">×</button>
     </div>
     <form method="POST" action="{{ url_for('novo_medicamento', paciente_id=paciente.id) }}">
       <div class="form-grupo">
-        <label class="form-label" for="med_nome">
-          Nome <span class="form-obrigatorio">*</span>
-        </label>
-        <input type="text" id="med_nome" name="nome" class="form-input" required
-               placeholder="Ex: Losartana, Metformina...">
+        <label class="form-label">Nome <span class="form-obrigatorio">*</span></label>
+        <input type="text" name="nome" class="form-input" required placeholder="Ex: Losartana, Metformina...">
       </div>
       <div class="form-linha">
         <div class="form-grupo">
-          <label class="form-label" for="med_dosagem">Dosagem</label>
-          <input type="text" id="med_dosagem" name="dosagem" class="form-input"
-                 placeholder="Ex: 50mg, 1 comprimido...">
+          <label class="form-label">Dosagem</label>
+          <input type="text" name="dosagem" class="form-input" placeholder="Ex: 50mg, 1 comprimido...">
         </div>
         <div class="form-grupo">
-          <label class="form-label" for="med_via">Via</label>
-          <select id="med_via" name="via_administracao" class="form-select">
+          <label class="form-label">Via</label>
+          <select name="via_administracao" class="form-select">
             <option value="">Selecione...</option>
             <option value="Oral">Oral</option>
             <option value="Sublingual">Sublingual</option>
@@ -279,27 +445,172 @@
         <div id="horarios-container" class="horarios-lista">
           <div class="horario-item">
             <input type="time" name="horarios[]" class="form-input" required>
-            <button type="button" class="btn-remover-horario"
-                    onclick="removerHorario(this)">Remover</button>
+            <button type="button" class="btn-remover-horario" onclick="removerHorario(this)">Remover</button>
           </div>
         </div>
-        <button type="button" class="btn-adicionar-horario"
-                onclick="adicionarHorario('horarios-container')">
+        <button type="button" class="btn-adicionar-horario" onclick="adicionarHorario('horarios-container')">
           + Adicionar horário
         </button>
       </div>
       <div class="form-grupo">
-        <label class="form-label" for="med_instr">Instruções</label>
-        <textarea id="med_instr" name="instrucoes" class="form-textarea" rows="2"
-                  placeholder="Ex: Tomar após refeições..."></textarea>
+        <label class="form-label">Instruções</label>
+        <textarea name="instrucoes" class="form-textarea" rows="2" placeholder="Ex: Tomar após refeições..."></textarea>
+      </div>
+      <div class="form-grupo">
+        <label class="form-label" style="display:flex;align-items:center;gap:.5rem;cursor:pointer">
+          <input type="checkbox" name="eh_antibiotico" value="1"
+                 onchange="document.getElementById('campo-fim-tratamento').style.display = this.checked ? 'block' : 'none'">
+          💊 Este medicamento é um antibiótico
+        </label>
+      </div>
+      <div class="form-grupo" id="campo-fim-tratamento" style="display:none">
+        <label class="form-label">Data de Término do Tratamento</label>
+        <input type="date" name="data_fim_tratamento" class="form-input">
+        <small style="color:var(--cor-texto-suave)">Você será alertado quando o tratamento estiver próximo do fim.</small>
       </div>
       <div class="form-botoes">
         <button type="submit" class="botao botao-primario">Adicionar Medicamento</button>
-        <button type="button" class="botao botao-secundario"
-                onclick="fecharModal('modal-medicamento')">Cancelar</button>
+        <button type="button" class="botao botao-secundario" onclick="fecharModal('modal-medicamento')">Cancelar</button>
       </div>
     </form>
   </div>
 </div>
- 
+
+<!-- Modal: Ficha Psicológica -->
+<div class="modal" id="modal-psicologico">
+  <div class="modal-conteudo">
+    <div class="modal-alca"></div>
+    <div class="modal-cabecalho">
+      <h3 class="modal-titulo">🧠 Ficha Psicológica</h3>
+      <button class="modal-fechar" onclick="fecharModal('modal-psicologico')" type="button">×</button>
+    </div>
+    <form method="POST" action="{{ url_for('salvar_psicologico', paciente_id=paciente.id) }}">
+      <div class="form-grupo">
+        <label class="form-label">Antecedentes de Problemas Mentais</label>
+        <textarea name="antecedentes" class="form-textarea" rows="3"
+                  placeholder="Histórico familiar, episódios anteriores...">{{ ficha_psico.antecedentes if ficha_psico else '' }}</textarea>
+      </div>
+      <div class="form-grupo">
+        <label class="form-label">Diagnósticos Psiquiátricos</label>
+        <textarea name="diagnosticos_mentais" class="form-textarea" rows="2"
+                  placeholder="Ex: Depressão, Ansiedade, Demência...">{{ ficha_psico.diagnosticos_mentais if ficha_psico else '' }}</textarea>
+      </div>
+      <div class="form-grupo">
+        <label class="form-label">Medicação Psiquiátrica em Uso</label>
+        <input type="text" name="medicacao_psiquiatrica" class="form-input"
+               placeholder="Ex: Alprazolam, Sertralina..."
+               value="{{ ficha_psico.medicacao_psiquiatrica if ficha_psico else '' }}">
+      </div>
+      <div class="form-grupo">
+        <label class="form-label">Comportamento Observado</label>
+        <textarea name="comportamento" class="form-textarea" rows="2"
+                  placeholder="Ex: Agitado, comunicativo, isolado...">{{ ficha_psico.comportamento if ficha_psico else '' }}</textarea>
+      </div>
+      <div class="form-grupo">
+        <label class="form-label">Observações Gerais</label>
+        <textarea name="observacoes" class="form-textarea" rows="2"
+                  placeholder="Outras informações relevantes...">{{ ficha_psico.observacoes if ficha_psico else '' }}</textarea>
+      </div>
+      <div class="form-botoes">
+        <button type="submit" class="botao botao-primario">Salvar Ficha</button>
+        <button type="button" class="botao botao-secundario" onclick="fecharModal('modal-psicologico')">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Profissional Consultado -->
+<div class="modal" id="modal-profissional">
+  <div class="modal-conteudo">
+    <div class="modal-alca"></div>
+    <div class="modal-cabecalho">
+      <h3 class="modal-titulo">👨‍⚕️ Profissional Consultado</h3>
+      <button class="modal-fechar" onclick="fecharModal('modal-profissional')" type="button">×</button>
+    </div>
+    <form method="POST" action="{{ url_for('novo_profissional', paciente_id=paciente.id) }}">
+      <div class="form-grupo">
+        <label class="form-label">Nome do Profissional <span class="form-obrigatorio">*</span></label>
+        <input type="text" name="nome" class="form-input" required placeholder="Ex: Dr. João Silva">
+      </div>
+      <div class="form-linha">
+        <div class="form-grupo">
+          <label class="form-label">Especialidade</label>
+          <input type="text" name="especialidade" class="form-input"
+                 placeholder="Ex: Psiquiatra, Neurologista...">
+        </div>
+        <div class="form-grupo">
+          <label class="form-label">Data da Consulta</label>
+          <input type="date" name="data_consulta" class="form-input">
+        </div>
+      </div>
+      <div class="form-grupo">
+        <label class="form-label">Observações</label>
+        <textarea name="observacoes" class="form-textarea" rows="2"
+                  placeholder="Resultado da consulta, encaminhamentos..."></textarea>
+      </div>
+      <div class="form-botoes">
+        <button type="submit" class="botao botao-primario">Adicionar</button>
+        <button type="button" class="botao botao-secundario" onclick="fecharModal('modal-profissional')">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Comorbidades e Dieta -->
+<div class="modal" id="modal-dieta">
+  <div class="modal-conteudo">
+    <div class="modal-alca"></div>
+    <div class="modal-cabecalho">
+      <h3 class="modal-titulo">🥗 Comorbidades e Alimentação</h3>
+      <button class="modal-fechar" onclick="fecharModal('modal-dieta')" type="button">×</button>
+    </div>
+    <form method="POST" action="{{ url_for('salvar_dieta', paciente_id=paciente.id) }}">
+      <div class="form-grupo">
+        <label class="form-label">Comorbidades</label>
+        <textarea name="comorbidades" class="form-textarea" rows="2"
+                  placeholder="Ex: Obesidade, Insuficiência renal, Osteoporose...">{{ dieta.comorbidades if dieta else '' }}</textarea>
+      </div>
+      <div class="form-grupo">
+        <label class="form-label">Dieta Específica</label>
+        <select name="dieta_especifica" class="form-select">
+          <option value="">Selecione...</option>
+          {% for op in ['Dieta livre', 'Dieta hipossódica', 'Dieta hipocalórica', 'Dieta diabética', 'Dieta hipoglicídica', 'Dieta hipolipídica', 'Dieta para insuficiência renal', 'Dieta para disfagia', 'Dieta vegetariana', 'Outra'] %}
+          <option value="{{ op }}" {{ 'selected' if dieta and dieta.dieta_especifica == op else '' }}>{{ op }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-grupo">
+        <label class="form-label">Consistência dos Alimentos</label>
+        <select name="consistencia_alimento" class="form-select">
+          <option value="">Selecione...</option>
+          {% for op in ['Normal', 'Pastosa', 'Semipastosa', 'Líquida', 'Líquida espessada'] %}
+          <option value="{{ op }}" {{ 'selected' if dieta and dieta.consistencia_alimento == op else '' }}>{{ op }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-grupo">
+        <label class="form-label">Restrições Alimentares</label>
+        <input type="text" name="restricoes_alimentares" class="form-input"
+               placeholder="Ex: Sem glúten, Sem lactose, Baixo potássio..."
+               value="{{ dieta.restricoes_alimentares if dieta else '' }}">
+      </div>
+      <div class="form-grupo">
+        <label class="form-label">⚠️ Alergias Alimentares</label>
+        <input type="text" name="alergias_alimentares" class="form-input"
+               placeholder="Ex: Amendoim, Frutos do mar, Leite..."
+               value="{{ dieta.alergias_alimentares if dieta else '' }}">
+      </div>
+      <div class="form-grupo">
+        <label class="form-label">Observações Nutricionais</label>
+        <textarea name="observacoes_nutricao" class="form-textarea" rows="2"
+                  placeholder="Outras informações sobre alimentação...">{{ dieta.observacoes_nutricao if dieta else '' }}</textarea>
+      </div>
+      <div class="form-botoes">
+        <button type="submit" class="botao botao-primario">Salvar</button>
+        <button type="button" class="botao botao-secundario" onclick="fecharModal('modal-dieta')">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 {% endblock %}

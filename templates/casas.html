@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block titulo %}Casas{% endblock %}
+
+{% block conteudo %}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+  <div>
+    <h1 class="titulo-pagina">🏘️ Casas Cadastradas</h1>
+    <p class="subtitulo">Gerencie as instituições que usam o GestCare</p>
+  </div>
+  <a href="{{ url_for('nova_casa') }}" class="botao botao-primario">+ Nova Casa</a>
+</div>
+
+{% if casas %}
+  <div style="display:flex;flex-direction:column;gap:.75rem">
+    {% for c in casas %}
+    <div class="secao" style="padding:1rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
+      <div>
+        <div style="font-weight:700;font-size:1.05rem">
+          {{ c.nome }}
+          {% if not c.ativo %}
+            <span style="background:#fff5f5;color:var(--cor-erro);border:1px solid var(--cor-erro);
+                         padding:1px 8px;border-radius:20px;font-size:.72rem;font-weight:700;margin-left:6px">DESATIVADA</span>
+          {% endif %}
+        </div>
+        <div style="font-size:.85rem;color:var(--cor-texto-suave);margin-top:.25rem">
+          {{ c.total_pacientes }} paciente(s) · {{ c.total_usuarios }} usuário(s) ativos
+        </div>
+      </div>
+      <div style="display:flex;gap:.5rem">
+        <a href="{{ url_for('editar_casa', casa_id=c.id) }}" class="botao botao-secundario botao-pequeno">Editar</a>
+        <form method="POST" action="{{ url_for('toggle_casa', casa_id=c.id) }}"
+              onsubmit="return confirm('{{ 'Reativar' if not c.ativo else 'Desativar' }} o acesso desta casa?');">
+          <button type="submit" class="botao botao-secundario botao-pequeno">
+            {{ 'Reativar' if not c.ativo else 'Desativar' }}
+          </button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="vazio">
+    <span class="vazio-icone">🏘️</span>
+    <h2 class="vazio-titulo">Nenhuma casa cadastrada</h2>
+    <p class="vazio-texto">Cadastre a primeira instituição para começar.</p>
+    <a href="{{ url_for('nova_casa') }}" class="botao botao-primario">+ Cadastrar Casa</a>
+  </div>
+{% endif %}
+{% endblock %}

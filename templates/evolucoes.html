@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block titulo %}Evolução Médica — {{ paciente.nome }}{% endblock %}
+
+{% block conteudo %}
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+  <div>
+    <h1 class="titulo-pagina">📋 Evolução Médica</h1>
+    <p class="subtitulo">{{ paciente.nome }}</p>
+  </div>
+  <div style="display:flex;gap:.6rem">
+    <a href="{{ url_for('detalhe_paciente', paciente_id=paciente.id) }}"
+       class="botao botao-secundario botao-pequeno">← Voltar</a>
+    <button class="botao botao-primario botao-pequeno"
+            onclick="abrirModal('modal-evolucao')">+ Nova Evolução</button>
+  </div>
+</div>
+
+{% if evolucoes %}
+  <div class="secao">
+    {% for e in evolucoes %}
+    <div style="padding:.9rem 0;border-bottom:1px solid var(--cor-borda);display:flex;align-items:flex-start;gap:1rem">
+      <div style="background:var(--cor-primaria-clara);color:var(--cor-primaria-escura);
+                  border-radius:50%;width:42px;height:42px;display:flex;align-items:center;
+                  justify-content:center;font-size:1.2rem;flex-shrink:0">📋</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap">
+          <span style="font-weight:700;font-size:.95rem">📅 {{ e.data_evolucao }}</span>
+          {% if e.profissional %}
+            <span style="font-size:.85rem;color:var(--cor-texto-suave)">— {{ e.profissional }}</span>
+          {% endif %}
+          {% if e.especialidade %}
+            <span style="background:var(--cor-primaria-clara);color:var(--cor-primaria-escura);
+                         padding:1px 8px;border-radius:20px;font-size:.72rem;font-weight:600">
+              {{ e.especialidade }}
+            </span>
+          {% endif %}
+        </div>
+        <div style="font-size:.9rem;margin-top:.4rem;white-space:pre-wrap">{{ e.descricao }}</div>
+      </div>
+      <form method="POST" action="{{ url_for('excluir_evolucao', evolucao_id=e.id) }}"
+            onsubmit="return confirm('Remover este registro de evolução?');">
+        <button type="submit" class="botao botao-perigo botao-pequeno">Remover</button>
+      </form>
+    </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="vazio">
+    <span class="vazio-icone">📋</span>
+    <h2 class="vazio-titulo">Nenhuma evolução registrada</h2>
+    <p class="vazio-texto">Registre a evolução clínica do paciente ao longo do tempo.</p>
+    <button class="botao botao-primario" onclick="abrirModal('modal-evolucao')">
+      + Registrar Primeira Evolução
+    </button>
+  </div>
+{% endif %}
+
+<!-- Modal: Nova Evolução -->
+<div class="modal" id="modal-evolucao">
+  <div class="modal-conteudo">
+    <div class="modal-alca"></div>
+    <div class="modal-cabecalho">
+      <h3 class="modal-titulo">Registrar Evolução Médica</h3>
+      <button class="modal-fechar" onclick="fecharModal('modal-evolucao')" type="button">×</button>
+    </div>
+    <form method="POST" action="{{ url_for('nova_evolucao', paciente_id=paciente.id) }}">
+      <div class="form-linha">
+        <div class="form-grupo">
+          <label class="form-label">Data <span class="form-obrigatorio">*</span></label>
+          <input type="date" name="data_evolucao" class="form-input" required value="{{ hoje }}">
+        </div>
+        <div class="form-grupo">
+          <label class="form-label">Especialidade</label>
+          <input type="text" name="especialidade" class="form-input"
+                 placeholder="Ex: Clínico Geral, Geriatria...">
+        </div>
+      </div>
+      <div class="form-grupo">
+        <label class="form-label">Profissional Responsável</label>
+        <input type="text" name="profissional" class="form-input"
+               placeholder="Nome do médico/enfermeiro responsável">
+      </div>
+      <div class="form-grupo">
+        <label class="form-label">Descrição da Evolução <span class="form-obrigatorio">*</span></label>
+        <textarea name="descricao" class="form-textarea" rows="4" required
+                  placeholder="Estado geral, sinais vitais, queixas, conduta adotada..."></textarea>
+      </div>
+      <div class="form-botoes">
+        <button type="submit" class="botao botao-primario">Registrar</button>
+        <button type="button" class="botao botao-secundario"
+                onclick="fecharModal('modal-evolucao')">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

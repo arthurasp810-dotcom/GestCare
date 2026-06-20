@@ -2,46 +2,77 @@
 {% block titulo %}Novo Usuário{% endblock %}
 
 {% block conteudo %}
-<h1 class="titulo-pagina">Novo Usuário</h1>
-<p class="subtitulo">Crie o acesso para um novo funcionário</p>
-
-<form method="POST" class="formulario">
-  <div class="form-grupo">
-    <label class="form-label" for="nome">
-      Nome completo <span class="form-obrigatorio">*</span>
-    </label>
-    <input type="text" id="nome" name="nome" class="form-input"
-           required placeholder="Nome do funcionário">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+  <div>
+    <h1 class="titulo-pagina">Novo Usuário</h1>
+    <p class="subtitulo">Cadastre um novo acesso ao sistema</p>
   </div>
+  <a href="{{ url_for('listar_usuarios') }}" class="botao botao-secundario">← Voltar</a>
+</div>
 
-  <div class="form-grupo">
-    <label class="form-label" for="email">
-      E-mail <span class="form-obrigatorio">*</span>
-    </label>
-    <input type="email" id="email" name="email" class="form-input"
-           required placeholder="email@laridosos.com">
-  </div>
+<div class="secao" style="max-width:560px">
+  <form method="POST">
+    <div class="form-grupo">
+      <label class="form-label" for="nome">Nome completo <span style="color:red">*</span></label>
+      <input type="text" id="nome" name="nome" class="form-input" required
+             placeholder="Nome do usuário">
+    </div>
 
-  <div class="form-grupo">
-    <label class="form-label" for="senha">
-      Senha <span class="form-obrigatorio">*</span>
-    </label>
-    <input type="password" id="senha" name="senha" class="form-input"
-           required placeholder="Mínimo 6 caracteres">
-    <div class="form-ajuda">O funcionário pode trocar a senha depois de entrar.</div>
-  </div>
+    <div class="form-grupo">
+      <label class="form-label" for="email">E-mail <span style="color:red">*</span></label>
+      <input type="email" id="email" name="email" class="form-input" required
+             placeholder="usuario@email.com">
+    </div>
 
-  <div class="form-grupo">
-    <label class="form-label" for="perfil">Perfil de acesso</label>
-    <select id="perfil" name="perfil" class="form-select">
-      <option value="enfermeiro">Enfermeiro — acesso ao dia a dia</option>
-      <option value="admin">Administrador — acesso total + usuários</option>
-    </select>
-  </div>
+    <div class="form-grupo">
+      <label class="form-label" for="senha">Senha <span style="color:red">*</span></label>
+      <input type="password" id="senha" name="senha" class="form-input" required
+             placeholder="Mínimo 6 caracteres" minlength="6">
+    </div>
 
-  <div class="form-botoes">
-    <button type="submit" class="botao botao-primario">Criar Usuário</button>
-    <a href="{{ url_for('listar_usuarios') }}" class="botao botao-secundario">Cancelar</a>
-  </div>
-</form>
+    <div class="form-grupo">
+      <label class="form-label" for="perfil">Perfil <span style="color:red">*</span></label>
+      <select id="perfil" name="perfil" class="form-input" onchange="togglePaciente(this.value)">
+        <option value="enfermeiro">Enfermeiro / Técnico</option>
+        <option value="admin">Administrador</option>
+        <option value="responsavel">Responsável pelo idoso</option>
+      </select>
+    </div>
+
+    <div class="form-grupo" id="campo-paciente" style="display:none">
+      <label class="form-label" for="paciente_id">Paciente vinculado (opcional)</label>
+      <select id="paciente_id" name="paciente_id" class="form-input">
+        <option value="">— Selecione o paciente —</option>
+        {% for p in pacientes %}
+        <option value="{{ p.id }}">
+          {{ p.nome }}
+          {% if p.cpf %} — CPF: {{ p.cpf }}{% endif %}
+          {% if p.rg %} — RG: {{ p.rg }}{% endif %}
+        </option>
+        {% endfor %}
+      </select>
+      <small style="color:var(--cor-texto-suave);display:block;margin-top:4px">
+        Normalmente não é preciso vincular aqui: o próprio responsável cria a conta em
+        "Cadastre-se" na tela de login e depois informa o CPF/RG do idoso para se vincular.
+        Use este campo apenas se quiser vincular manualmente.
+      </small>
+    </div>
+
+    <div class="form-botoes" style="margin-top:1.5rem">
+      <button type="submit" class="botao botao-primario">Criar usuário</button>
+      <a href="{{ url_for('listar_usuarios') }}" class="botao botao-secundario">Cancelar</a>
+    </div>
+  </form>
+</div>
+
+<script>
+function togglePaciente(perfil) {
+  const campo = document.getElementById('campo-paciente');
+  if (perfil === 'responsavel') {
+    campo.style.display = '';
+  } else {
+    campo.style.display = 'none';
+  }
+}
+</script>
 {% endblock %}

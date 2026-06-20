@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block titulo %}Nova Casa{% endblock %}
+
+{% block conteudo %}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+  <div>
+    <h1 class="titulo-pagina">+ Nova Casa</h1>
+    <p class="subtitulo">Cadastre a instituição e seu primeiro administrador</p>
+  </div>
+  <a href="{{ url_for('listar_casas') }}" class="botao botao-secundario">← Voltar</a>
+</div>
+
+<div class="secao" style="max-width:560px">
+  <form method="POST">
+    <div class="form-grupo">
+      <label class="form-label" for="nome_casa">Nome da Casa <span style="color:red">*</span></label>
+      <input type="text" id="nome_casa" name="nome_casa" class="form-input" required
+             placeholder="Ex: Lar São José">
+    </div>
+
+    <hr style="border:none;border-top:1px solid var(--cor-borda);margin:1.25rem 0">
+    <p style="font-size:.85rem;color:var(--cor-texto-suave);margin-bottom:1rem">
+      Dados do primeiro administrador desta casa — ele poderá criar enfermeiros e cadastrar pacientes depois.
+    </p>
+
+    <div class="form-grupo">
+      <label class="form-label" for="admin_nome">Nome do Administrador <span style="color:red">*</span></label>
+      <input type="text" id="admin_nome" name="admin_nome" class="form-input" required
+             placeholder="Nome completo">
+    </div>
+    <div class="form-grupo">
+      <label class="form-label" for="admin_email">E-mail do Administrador <span style="color:red">*</span></label>
+      <input type="email" id="admin_email" name="admin_email" class="form-input" required
+             placeholder="admin@casa.com">
+    </div>
+    <div class="form-grupo">
+      <label class="form-label" for="admin_senha">Senha Inicial <span style="color:red">*</span></label>
+      <input type="password" id="admin_senha" name="admin_senha" class="form-input" required
+             minlength="6" placeholder="Mínimo 6 caracteres">
+    </div>
+
+    <div class="form-botoes" style="margin-top:1.5rem">
+      <button type="submit" class="botao botao-primario">Criar Casa</button>
+      <a href="{{ url_for('listar_casas') }}" class="botao botao-secundario">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -3,48 +3,78 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="description" content="Sistema de gestão para casa de idosos">
+  <meta name="description" content="Sistema de gestão para instituições de cuidado">
   <meta name="theme-color" content="#2d6a7a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Casa de Idosos">
+  <meta name="apple-mobile-web-app-title" content="GestCare">
   <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-  <title>{% block titulo %}Casa de Idosos{% endblock %} - Sistema</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='icons/favicon-32.png') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/apple-touch-icon.png') }}">
+  <title>{% block titulo %}GestCare{% endblock %} - Sistema</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body>
+<body data-notificacoes="{{ 'equipe' if session.get('usuario_perfil') in ('enfermeiro', 'admin') else '' }}">
 
 <header class="cabecalho">
   <div class="cabecalho-container">
-    <a href="{{ url_for('index') }}" class="logo">
-      <span class="logo-icon">🏡</span>
-      <span>Casa de Idosos</span>
-    </a>
-    <!-- Visível só no desktop via CSS -->
+    {% if session.get('usuario_perfil') == 'responsavel' %}
+      <a href="{{ url_for('painel_responsavel') }}" class="logo">
+        <span class="logo-icon">💙</span>
+        <span>GestCare</span>
+      </a>
+    {% elif session.get('usuario_perfil') == 'superadmin' %}
+      <a href="{{ url_for('listar_casas') }}" class="logo">
+        <span class="logo-icon">💙</span>
+        <span>GestCare</span>
+      </a>
+    {% else %}
+      <a href="{{ url_for('index') }}" class="logo">
+        <span class="logo-icon">💙</span>
+        <span>GestCare</span>
+        {% if session.get('casa_nome') %}
+          <span style="font-size:.7rem;font-weight:600;background:rgba(255,255,255,.18);
+                       padding:2px 8px;border-radius:20px;margin-left:8px">{{ session.get('casa_nome') }}</span>
+        {% endif %}
+      </a>
+    {% endif %}
+
     <nav class="nav-menu-desktop">
-  <a href="{{ url_for('index') }}"
-     class="nav-link {% if request.endpoint == 'index' %}ativo{% endif %}">Pacientes</a>
-  <a href="{{ url_for('agenda_diaria') }}"
-     class="nav-link {% if request.endpoint == 'agenda_diaria' %}ativo{% endif %}">Agenda</a>
-  <a href="{{ url_for('novo_paciente') }}"
-     class="nav-link {% if request.endpoint == 'novo_paciente' %}ativo{% endif %}">+ Novo Cadastro</a>
+      {% if session.get('usuario_perfil') == 'responsavel' %}
+        <!-- Responsável: só vê ficha do paciente e sair -->
+        <a href="{{ url_for('painel_responsavel') }}" class="nav-link ativo">Ficha do Paciente</a>
+        <a href="{{ url_for('logout') }}" class="nav-link">Sair</a>
 
-  {% if session.get('usuario_perfil') == 'admin' %}
-  <a href="{{ url_for('listar_usuarios') }}"
-     class="nav-link {% if request.endpoint == 'listar_usuarios' %}ativo{% endif %}">Usuários</a>
-  {% endif %}
+      {% elif session.get('usuario_perfil') == 'superadmin' %}
+        <!-- Superadmin: só gerencia a lista de casas -->
+        <a href="{{ url_for('listar_casas') }}" class="nav-link ativo">Casas</a>
+        <a href="{{ url_for('logout') }}" class="nav-link">Sair</a>
 
-  {% if session.get('usuario_nome') %}
-  <span style="color:rgba(255,255,255,.6);padding:0 .5rem;font-size:.9rem">
-    {{ session.get('usuario_nome') }}
-  </span>
-  <a href="{{ url_for('logout') }}" class="nav-link">Sair</a>
-  {% endif %}
-</nav>
+      {% elif session.get('usuario_nome') %}
+        <!-- Equipe: menu completo -->
+        <a href="{{ url_for('index') }}"
+           class="nav-link {% if request.endpoint == 'index' %}ativo{% endif %}">Pacientes</a>
+        <a href="{{ url_for('agenda_diaria') }}"
+           class="nav-link {% if request.endpoint == 'agenda_diaria' %}ativo{% endif %}">Agenda</a>
+        <a href="{{ url_for('novo_paciente') }}"
+           class="nav-link {% if request.endpoint == 'novo_paciente' %}ativo{% endif %}">+ Novo Cadastro</a>
+        {% if session.get('usuario_perfil') == 'admin' %}
+        <a href="{{ url_for('listar_usuarios') }}"
+           class="nav-link {% if request.endpoint == 'listar_usuarios' %}ativo{% endif %}">Usuários</a>
+        {% endif %}
+        <a href="{{ url_for('meu_perfil') }}"
+           class="nav-link {% if request.endpoint == 'meu_perfil' %}ativo{% endif %}">👤 Meu Perfil</a>
+        <button id="btn-notificacoes" type="button" class="nav-link" style="background:none;border:none;cursor:pointer"
+                onclick="ativarNotificacoes(false)" title="Ativar lembretes de antibiótico no celular">
+          🔔 Notificações
+        </button>
+        <a href="{{ url_for('logout') }}" class="nav-link">Sair</a>
+      {% endif %}
+    </nav>
   </div>
 </header>
 
@@ -60,30 +90,68 @@
 </main>
 
 <footer class="rodape">
-  <p>Sistema de Gestão — Casa de Idosos</p>
+  <p>GestCare — Sistema de Gestão</p>
 </footer>
 
-<nav class="nav-bottom">
-  <a href="{{ url_for('index') }}"
-     class="nav-bottom-item {% if request.endpoint == 'index' %}ativo{% endif %}">
-    <span class="nav-bottom-icon">👥</span>
-    <span>Pacientes</span>
-  </a>
-  <a href="{{ url_for('agenda_diaria') }}"
-     class="nav-bottom-item {% if request.endpoint == 'agenda_diaria' %}ativo{% endif %}">
-    <span class="nav-bottom-icon">💊</span>
-    <span>Agenda</span>
-  </a>
-  <a href="{{ url_for('novo_paciente') }}"
-     class="nav-bottom-item {% if request.endpoint == 'novo_paciente' %}ativo{% endif %}">
-    <span class="nav-bottom-icon">➕</span>
-    <span>Cadastrar</span>
-  </a>
-  <a href="{{ url_for('logout') }}" class="nav-bottom-item">
-    <span class="nav-bottom-icon">🚪</span>
-    <span>Sair</span>
-  </a>
-</nav>
+{% if session.get('usuario_perfil') == 'responsavel' %}
+  <!-- Nav bottom para responsável -->
+  <nav class="nav-bottom">
+    <a href="{{ url_for('painel_responsavel') }}" class="nav-bottom-item ativo">
+      <span class="nav-bottom-icon">📋</span>
+      <span>Ficha</span>
+    </a>
+    <a href="{{ url_for('logout') }}" class="nav-bottom-item">
+      <span class="nav-bottom-icon">🚪</span>
+      <span>Sair</span>
+    </a>
+  </nav>
+{% elif session.get('usuario_perfil') == 'superadmin' %}
+  <!-- Nav bottom para superadmin -->
+  <nav class="nav-bottom">
+    <a href="{{ url_for('listar_casas') }}" class="nav-bottom-item ativo">
+      <span class="nav-bottom-icon">🏘️</span>
+      <span>Casas</span>
+    </a>
+    <a href="{{ url_for('logout') }}" class="nav-bottom-item">
+      <span class="nav-bottom-icon">🚪</span>
+      <span>Sair</span>
+    </a>
+  </nav>
+{% elif session.get('usuario_nome') %}
+  <!-- Nav bottom para equipe -->
+  <nav class="nav-bottom">
+    <a href="{{ url_for('index') }}"
+       class="nav-bottom-item {% if request.endpoint == 'index' %}ativo{% endif %}">
+      <span class="nav-bottom-icon">👥</span>
+      <span>Pacientes</span>
+    </a>
+    <a href="{{ url_for('agenda_diaria') }}"
+       class="nav-bottom-item {% if request.endpoint == 'agenda_diaria' %}ativo{% endif %}">
+      <span class="nav-bottom-icon">💊</span>
+      <span>Agenda</span>
+    </a>
+    <a href="{{ url_for('novo_paciente') }}"
+       class="nav-bottom-item {% if request.endpoint == 'novo_paciente' %}ativo{% endif %}">
+      <span class="nav-bottom-icon">➕</span>
+      <span>Cadastrar</span>
+    </a>
+    <button type="button" id="btn-notificacoes-mobile" class="nav-bottom-item"
+            style="background:none;border:none" onclick="ativarNotificacoes(false)">
+      <span class="nav-bottom-icon">🔔</span>
+      <span>Avisos</span>
+    </button>
+    <a href="{{ url_for('meu_perfil') }}"
+       class="nav-bottom-item {% if request.endpoint == 'meu_perfil' %}ativo{% endif %}">
+      <span class="nav-bottom-icon">👤</span>
+      <span>Perfil</span>
+    </a>
+    <a href="{{ url_for('logout') }}" class="nav-bottom-item">
+      <span class="nav-bottom-icon">🚪</span>
+      <span>Sair</span>
+    </a>
+  </nav>
+{% endif %}
+
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 {% block scripts %}{% endblock %}
 </body>

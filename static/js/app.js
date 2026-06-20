@@ -139,4 +139,58 @@ document.addEventListener('DOMContentLoaded', () => {
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/static/sw.js').catch(() => {});
   }
+
+  // Se a permissão de notificação já foi concedida antes, renova a inscrição
+  // silenciosamente (ex: depois de reabrir o app em outro dia).
+  if (document.body.dataset.notificacoes === 'equipe' &&
+      'Notification' in window && Notification.permission === 'granted') {
+    ativarNotificacoes(true);
+  }
 });
+
+// ── NOTIFICAÇÕES PUSH (lembrete de antibiótico no celular) ──
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const dadosBrutos = atob(base64);
+  const saida = new Uint8Array(dadosBrutos.length);
+  for (let i = 0; i < dadosBrutos.length; ++i) saida[i] = dadosBrutos.charCodeAt(i);
+  return saida;
+}
+
+async function ativarNotificacoes(silencioso) {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    if (!silencioso) mostrarToast('Seu navegador não suporta notificações push.', 'erro');
+    return;
+  }
+  try {
+    const permissao = await Notification.requestPermission();
+    if (permissao !== 'granted') {
+      if (!silencioso) mostrarToast('Permissão de notificação negada.', 'erro');
+      return;
+    }
+    const registro = await navigator.serviceWorker.ready;
+    const resposta = await fetch('/push/chave-publica');
+    const { publicKey } = await resposta.json();
+
+    let inscricao = await registro.pushManager.getSubscription();
+    if (!inscricao) {
+      inscricao = await registro.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(publicKey)
+      });
+    }
+
+    await fetch('/push/inscrever', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(inscricao.toJSON())
+    });
+
+    if (!silencioso) mostrarToast('Notificações ativadas! Você será avisado(a) sobre antibióticos.');
+    const botao = document.getElementById('btn-notificacoes');
+    if (botao) botao.classList.add('notificacoes-ativas');
+  } catch (erro) {
+    if (!silencioso) mostrarToast('Não foi possível ativar as notificações.', 'erro');
+  }
+}

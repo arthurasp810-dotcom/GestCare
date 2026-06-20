@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block titulo %}Exames — {{ paciente.nome }}{% endblock %}
+
+{% block conteudo %}
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+  <div>
+    <h1 class="titulo-pagina">🔬 Resultados de Exames</h1>
+    <p class="subtitulo">{{ paciente.nome }}</p>
+  </div>
+  <div style="display:flex;gap:.6rem">
+    <a href="{{ url_for('detalhe_paciente', paciente_id=paciente.id) }}"
+       class="botao botao-secundario botao-pequeno">← Voltar</a>
+    <button class="botao botao-primario botao-pequeno"
+            onclick="abrirModal('modal-exame')">+ Novo Exame</button>
+  </div>
+</div>
+
+{% if exames %}
+  <div style="display:flex;flex-direction:column;gap:.75rem">
+    {% for e in exames %}
+    <div class="secao" style="padding:1rem">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.75rem">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.4rem">
+            <strong style="font-size:1rem">{{ e.tipo_exame }}</strong>
+            <span style="background:var(--cor-primaria-clara);color:var(--cor-primaria-escura);
+                         padding:2px 8px;border-radius:20px;font-size:.75rem;font-weight:600">
+              {{ e.data_exame }}
+            </span>
+          </div>
+          <div style="font-size:.85rem;color:var(--cor-texto-suave);margin-bottom:.5rem">
+            {% if e.laboratorio %}🏥 {{ e.laboratorio }}{% endif %}
+            {% if e.medico_solicitante %} · 👨‍⚕️ Dr(a). {{ e.medico_solicitante }}{% endif %}
+          </div>
+          {% if e.resultado %}
+          <div style="background:var(--cor-fundo);border-radius:var(--raio-xs);
+                      padding:.6rem .75rem;margin-bottom:.4rem;font-size:.9rem;
+                      border-left:3px solid var(--cor-primaria)">
+            <div style="font-size:.72rem;font-weight:700;color:var(--cor-texto-suave);
+                        text-transform:uppercase;margin-bottom:.25rem">Resultado</div>
+            {{ e.resultado }}
+          </div>
+          {% endif %}
+          {% if e.valores_referencia %}
+          <div style="font-size:.8rem;color:var(--cor-texto-suave)">
+            Valores de referência: {{ e.valores_referencia }}
+          </div>
+          {% endif %}
+          {% if e.observacoes %}
+          <div style="font-size:.85rem;font-style:italic;color:var(--cor-texto-suave);margin-top:.4rem">
+            {{ e.observacoes }}
+          </div>
+          {% endif %}
+          {% if e.arquivo_nome %}
+          <div style="margin-top:.5rem">
+            <a href="{{ url_for('static', filename='uploads/exames/' + e.arquivo_nome) }}"
+               target="_blank" class="botao botao-secundario botao-pequeno">📎 Ver documento anexado</a>
+          </div>
+          {% endif %}
+        </div>
+        <form method="POST" action="{{ url_for('excluir_exame', exame_id=e.id) }}"
+              onsubmit="return confirm('Remover este exame?');" style="flex-shrink:0">
+          <button type="submit" class="botao botao-perigo botao-pequeno">Remover</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="vazio">
+    <span class="vazio-icone">🔬</span>
+    <h2 class="vazio-titulo">Nenhum exame registrado</h2>
+    <p class="vazio-texto">Registre os resultados de exames médicos do paciente.</p>
+    <button class="botao botao-primario" onclick="abrirModal('modal-exame')">
+      + Registrar Primeiro Exame
+    </button>
+  </div>
+{% endif %}
+
+<!-- Modal: Novo Exame -->
+<div class="modal" id="modal-exame">
+  <div class="modal-conteudo">
+    <div class="modal-alca"></div>
+    <div class="modal-cabecalho">
+      <h3 class="modal-titulo">Registrar Exame</h3>
+      <button class="modal-fechar" onclick="fecharModal('modal-exame')" type="button">×</button>
+    </div>
+    <form method="POST" action="{{ url_for('novo_exame', paciente_id=paciente.id) }}" enctype="multipart/form-data">
+      <div class="form-grupo">
+        <label class="form-label">Tipo de Exame <span class="form-obrigatorio">*</span></label>
+        <input type="text" name="tipo_exame" class="form-input" required
+               placeholder="Ex: Hemograma, Glicemia, Raio-X, Eletrocardiograma...">
+      </div>
+      <div class="form-linha">
+        <div class="form-grupo">
+          <label class="form-label">Data do Exame <span class="form-obrigatorio">*</span></label>
+          <input type="date" name="data_exame" class="form-input" required>
+        </div>
+        <div class="form-grupo">
+          <label class="form-label">Laboratório / Clínica</label>
+          <input type="text" name="laboratorio" class="form-input"
+                 placeholder="Ex: Lab São Lucas...">
+        </div>
+      </div>
+      <div class="form-grupo">
+        <label class="form-label">Médico Solicitante</label>
+        <input type="text" name="medico_solicitante" class="form-input"
+               placeholder="Nome do médico que pediu o exame">
+      </div>
+      <div class="form-grupo">
+        <label class="form-label">Resultado</label>
+        <textarea name="resultado" class="form-textarea" rows="3"
+                  placeholder="Descreva os valores ou resultado do exame..."></textarea>
+      </div>
+      <div class="form-grupo">
+        <label class="form-label">Valores de Referência</label>
+        <input type="text" name="valores_referencia" class="form-input"
+               placeholder="Ex: Glicemia: 70–100 mg/dL">
+      </div>
+      <div class="form-grupo">
+        <label class="form-label">Observações</label>
+        <textarea name="observacoes" class="form-textarea" rows="2"
+                  placeholder="Notas adicionais, recomendações médicas..."></textarea>
+      </div>
+      <div class="form-grupo">
+        <label class="form-label">📎 Anexar Documento</label>
+        <input type="file" name="arquivo" class="form-input" accept=".pdf,.png,.jpg,.jpeg,.webp">
+        <small style="color:var(--cor-texto-suave)">Formatos aceitos: PDF, JPG, PNG, WEBP</small>
+      </div>
+      <div class="form-botoes">
+        <button type="submit" class="botao botao-primario">Salvar Exame</button>
+        <button type="button" class="botao botao-secundario"
+                onclick="fecharModal('modal-exame')">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

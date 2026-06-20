@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+database/*.db
+static/uploads/
+vapid_private_key.pem
+.venv/
+venv/

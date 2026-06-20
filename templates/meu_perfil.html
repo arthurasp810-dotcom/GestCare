@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block titulo %}Meu Perfil{% endblock %}
+
+{% block conteudo %}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+  <div>
+    <h1 class="titulo-pagina">👤 Meu Perfil</h1>
+    <p class="subtitulo">Atualize seus dados de acesso</p>
+  </div>
+</div>
+
+<div class="secao" style="max-width:560px">
+  <form method="POST">
+    <div class="form-grupo">
+      <label class="form-label" for="nome">Nome completo</label>
+      <input type="text" id="nome" name="nome" class="form-input" required value="{{ usuario.nome }}">
+    </div>
+    <div class="form-grupo">
+      <label class="form-label" for="email">E-mail</label>
+      <input type="email" id="email" name="email" class="form-input" required value="{{ usuario.email }}">
+    </div>
+
+    <hr style="border:none;border-top:1px solid var(--cor-borda);margin:1.25rem 0">
+    <p style="font-size:.85rem;color:var(--cor-texto-suave);margin-bottom:1rem">
+      Para trocar seu e-mail ou definir uma nova senha, confirme sua senha atual.
+      Deixe os campos de nova senha em branco se não quiser alterá-la.
+    </p>
+
+    <div class="form-grupo">
+      <label class="form-label" for="senha_atual">Senha atual</label>
+      <input type="password" id="senha_atual" name="senha_atual" class="form-input"
+             placeholder="Necessária para trocar e-mail ou senha">
+    </div>
+    <div class="form-linha">
+      <div class="form-grupo">
+        <label class="form-label" for="senha_nova">Nova senha</label>
+        <input type="password" id="senha_nova" name="senha_nova" class="form-input"
+               minlength="6" placeholder="Mínimo 6 caracteres">
+      </div>
+      <div class="form-grupo">
+        <label class="form-label" for="confirmar_senha_nova">Confirmar nova senha</label>
+        <input type="password" id="confirmar_senha_nova" name="confirmar_senha_nova" class="form-input"
+               minlength="6" placeholder="Repita a nova senha">
+      </div>
+    </div>
+
+    <div class="form-botoes" style="margin-top:1.5rem">
+      <button type="submit" class="botao botao-primario">Salvar Alterações</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

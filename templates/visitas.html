@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block titulo %}Visitas — {{ paciente.nome }}{% endblock %}
+
+{% block conteudo %}
+
+<div class="page-header-row" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+  <div>
+    <h1 class="titulo-pagina">👥 Visitas de Familiares</h1>
+    <p class="subtitulo">{{ paciente.nome }}</p>
+  </div>
+  <div style="display:flex;gap:.6rem">
+    <a href="{{ url_for('detalhe_paciente', paciente_id=paciente.id) }}"
+       class="botao botao-secundario botao-pequeno">← Voltar</a>
+    <button class="botao botao-primario botao-pequeno"
+            onclick="abrirModal('modal-visita')">+ Registrar Visita</button>
+  </div>
+</div>
+
+{% if visitas %}
+  <div class="secao">
+    {% for v in visitas %}
+    <div style="padding:.9rem 0;border-bottom:1px solid var(--cor-borda);display:flex;align-items:flex-start;gap:1rem">
+      <div style="background:var(--cor-primaria-clara);color:var(--cor-primaria-escura);
+                  border-radius:50%;width:42px;height:42px;display:flex;align-items:center;
+                  justify-content:center;font-size:1.2rem;flex-shrink:0">👤</div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:1rem">{{ v.visitante_nome }}</div>
+        {% if v.visitante_parentesco %}
+          <div style="font-size:.85rem;color:var(--cor-texto-suave)">{{ v.visitante_parentesco }}</div>
+        {% endif %}
+        <div style="font-size:.85rem;color:var(--cor-texto-suave);margin-top:.25rem">
+          📅 {{ v.data_visita }}
+          {% if v.hora_entrada %} · Entrada: {{ v.hora_entrada }}{% endif %}
+          {% if v.hora_saida %} · Saída: {{ v.hora_saida }}{% endif %}
+        </div>
+        {% if v.observacoes %}
+          <div style="font-size:.85rem;margin-top:.4rem;font-style:italic;color:var(--cor-texto-suave)">
+            {{ v.observacoes }}
+          </div>
+        {% endif %}
+        {% if v.registrado_por %}
+          <div style="font-size:.75rem;color:var(--cor-texto-suave);margin-top:.25rem">
+            Registrado por: {{ v.registrado_por }}
+          </div>
+        {% endif %}
+      </div>
+      <form method="POST" action="{{ url_for('excluir_visita', visita_id=v.id) }}"
+            onsubmit="return confirm('Remover este registro de visita?');">
+        <button type="submit" class="botao botao-perigo botao-pequeno">Remover</button>
+      </form>
+    </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="vazio">
+    <span class="vazio-icone">👥</span>
+    <h2 class="vazio-titulo">Nenhuma visita registrada</h2>
+    <p class="vazio-texto">Registre as visitas dos familiares ao paciente.</p>
+    <button class="botao botao-primario" onclick="abrirModal('modal-visita')">
+      + Registrar Primeira Visita
+    </button>
+  </div>
+{% endif %}
+
+<!-- Modal: Nova Visita -->
+<div class="modal" id="modal-visita">
+  <div class="modal-conteudo">
+    <div class="modal-alca"></div>
+    <div class="modal-cabecalho">
+      <h3 class="modal-titulo">Registrar Visita</h3>
+      <button class="modal-fechar" onclick="fecharModal('modal-visita')" type="button">×</button>
+    </div>
+    <form method="POST" action="{{ url_for('nova_visita', paciente_id=paciente.id) }}">
+      <div class="form-grupo">
+        <label class="form-label">Nome do Visitante <span class="form-obrigatorio">*</span></label>
+        <input type="text" name="visitante_nome" class="form-input" required
+               placeholder="Nome completo do visitante">
+      </div>
+      <div class="form-linha">
+        <div class="form-grupo">
+          <label class="form-label">Parentesco</label>
+          <select name="visitante_parentesco" class="form-select">
+            <option value="">Selecione...</option>
+            <option value="Filho(a)">Filho(a)</option>
+            <option value="Cônjuge">Cônjuge</option>
+            <option value="Neto(a)">Neto(a)</option>
+            <option value="Irmão/Irmã">Irmão/Irmã</option>
+            <option value="Sobrinho(a)">Sobrinho(a)</option>
+            <option value="Amigo(a)">Amigo(a)</option>
+            <option value="Outro">Outro</option>
+          </select>
+        </div>
+        <div class="form-grupo">
+          <label class="form-label">Data da Visita <span class="form-obrigatorio">*</span></label>
+          <input type="date" name="data_visita" class="form-input" required
+                 value="{{ hoje }}">
+        </div>
+      </div>
+      <div class="form-linha">
+        <div class="form-grupo">
+          <label class="form-label">Hora de Entrada</label>
+          <input type="time" name="hora_entrada" class="form-input">
+        </div>
+        <div class="form-grupo">
+          <label class="form-label">Hora de Saída</label>
+          <input type="time" name="hora_saida" class="form-input">
+        </div>
+      </div>
+      <div class="form-grupo">
+        <label class="form-label">Observações</label>
+        <textarea name="observacoes" class="form-textarea" rows="2"
+                  placeholder="Ex: Trouxe presentes, paciente ficou agitado..."></textarea>
+      </div>
+      <div class="form-botoes">
+        <button type="submit" class="botao botao-primario">Registrar</button>
+        <button type="button" class="botao botao-secundario"
+                onclick="fecharModal('modal-visita')">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

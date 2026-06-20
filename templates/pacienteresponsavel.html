@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+{% block titulo %}Ficha de {{ paciente.nome }}{% endblock %}
+
+{% block conteudo %}
+
+<!-- Aviso de modo leitura -->
+<div style="background:var(--cor-primaria-clara);border-radius:var(--raio-sm);padding:.75rem 1rem;
+            margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem;
+            font-size:.9rem;color:var(--cor-primaria-escura);flex-wrap:wrap">
+  <span>🔒 <strong>Modo somente leitura</strong> — Você está visualizando a ficha atualizada do paciente.</span>
+  <form method="POST" action="{{ url_for('desvincular_idoso') }}"
+        onsubmit="return confirm('Desvincular este idoso e acessar outro?');">
+    <button type="submit" class="botao botao-secundario botao-pequeno">Trocar idoso vinculado</button>
+  </form>
+</div>
+
+<!-- Cabeçalho do paciente -->
+<div class="paciente-cabecalho">
+  <div class="paciente-topo">
+    <div class="paciente-avatar">{{ paciente.nome[0]|upper }}</div>
+    <div>
+      <div class="paciente-nome">{{ paciente.nome }}</div>
+      <div class="paciente-sub">
+        {% if paciente.idade %}{{ paciente.idade }} anos{% endif %}
+        {% if paciente.sexo %} · {{ paciente.sexo }}{% endif %}
+        {% if paciente.quarto %} · Quarto <strong>{{ paciente.quarto }}</strong>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="paciente-dados-grid">
+    {% if paciente.data_nascimento %}
+    <div class="dado-item">
+      <div class="dado-label">Nascimento</div>
+      <div class="dado-valor">{{ paciente.data_nascimento }}</div>
+    </div>
+    {% endif %}
+    {% if paciente.cpf %}
+    <div class="dado-item">
+      <div class="dado-label">CPF</div>
+      <div class="dado-valor">{{ paciente.cpf }}</div>
+    </div>
+    {% endif %}
+    {% if paciente.telefone %}
+    <div class="dado-item">
+      <div class="dado-label">Telefone</div>
+      <div class="dado-valor">{{ paciente.telefone }}</div>
+    </div>
+    {% endif %}
+    {% if paciente.quarto %}
+    <div class="dado-item">
+      <div class="dado-label">Quarto</div>
+      <div class="dado-valor">{{ paciente.quarto }}</div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Condições de saúde -->
+<div class="secao">
+  <div class="secao-cabecalho">
+    <h2 class="secao-titulo">🩺 Condições de Saúde</h2>
+  </div>
+  {% if condicoes %}
+    <div class="lista-condicoes">
+      {% for c in condicoes %}
+      <div class="condicao-item">
+        <div class="condicao-info">
+          <div class="condicao-nome">
+            {{ c.nome }}
+            {% if c.gravidade %}
+              <span class="tag-gravidade gravidade-{{ c.gravidade|lower }}">{{ c.gravidade }}</span>
+            {% endif %}
+          </div>
+          {% if c.descricao %}<div class="condicao-detalhes">{{ c.descricao }}</div>{% endif %}
+          {% if c.data_diagnostico %}<div class="condicao-detalhes"><small>Diagnóstico: {{ c.data_diagnostico }}</small></div>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p style="color:var(--cor-texto-suave);text-align:center;padding:1rem">Nenhuma condição cadastrada.</p>
+  {% endif %}
+</div>
+
+<!-- Medicamentos e doses -->
+<div class="secao">
+  <div class="secao-cabecalho">
+    <h2 class="secao-titulo">💊 Medicamentos</h2>
+  </div>
+  {% if medicamentos %}
+    <div class="lista-medicamentos">
+      {% for m in medicamentos %}
+      <div class="medicamento-item">
+        <div class="medicamento-cabecalho">
+          <div>
+            <div class="medicamento-nome">{{ m.nome }}</div>
+            {% if m.dosagem %}<div class="medicamento-dosagem">{{ m.dosagem }}</div>{% endif %}
+            {% if m.via_administracao %}<span class="medicamento-via">{{ m.via_administracao }}</span>{% endif %}
+          </div>
+        </div>
+        {% if m.horarios %}
+        <div>
+          <small style="color:var(--cor-texto-suave);font-weight:700;font-size:.75rem;text-transform:uppercase">Horários:</small>
+          <div class="horarios-tags">
+            {% for h in m.horarios %}<span class="horario-tag">🕐 {{ h[:5] }}</span>{% endfor %}
+          </div>
+        </div>
+        {% endif %}
+        {% if m.instrucoes %}
+        <div class="medicamento-instrucoes"><strong>Instruções:</strong> {{ m.instrucoes }}</div>
+        {% endif %}
+
+        <!-- Últimas doses registradas -->
+        {% if m.ultimas_doses %}
+        <div style="margin-top:.75rem;padding:.75rem;background:var(--cor-sucesso-bg);border-radius:var(--raio-xs);border-left:3px solid var(--cor-sucesso)">
+          <div style="font-size:.75rem;font-weight:700;color:var(--cor-sucesso);text-transform:uppercase;margin-bottom:.4rem">
+            ✓ Últimas doses registradas
+          </div>
+          {% for dose in m.ultimas_doses %}
+          <div style="font-size:.85rem;color:var(--cor-texto);margin-bottom:.2rem">
+            {{ dose.horario_administrado[:16] }} — por {{ dose.administrado_por or 'Não informado' }}
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div style="margin-top:.75rem;padding:.5rem .75rem;background:var(--cor-alerta-bg);border-radius:var(--raio-xs);font-size:.85rem;color:var(--cor-alerta)">
+          ⚠️ Nenhuma dose registrada ainda
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p style="color:var(--cor-texto-suave);text-align:center;padding:1rem">Nenhum medicamento cadastrado.</p>
+  {% endif %}
+</div>
+
+<!-- Comorbidades e dieta -->
+{% if dieta %}
+<div class="secao">
+  <div class="secao-cabecalho">
+    <h2 class="secao-titulo">🥗 Alimentação e Dieta</h2>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+    {% if dieta.comorbidades %}
+    <div class="dado-item" style="grid-column:1/-1">
+      <div class="dado-label">Comorbidades</div>
+      <div class="dado-valor" style="font-weight:400;font-size:.95rem">{{ dieta.comorbidades }}</div>
+    </div>
+    {% endif %}
+    {% if dieta.dieta_especifica %}
+    <div class="dado-item">
+      <div class="dado-label">Dieta</div>
+      <div class="dado-valor" style="font-weight:400;font-size:.95rem">{{ dieta.dieta_especifica }}</div>
+    </div>
+    {% endif %}
+    {% if dieta.consistencia_alimento %}
+    <div class="dado-item">
+      <div class="dado-label">Consistência</div>
+      <div class="dado-valor" style="font-weight:400;font-size:.95rem">{{ dieta.consistencia_alimento }}</div>
+    </div>
+    {% endif %}
+    {% if dieta.restricoes_alimentares %}
+    <div class="dado-item">
+      <div class="dado-label">Restrições</div>
+      <div class="dado-valor" style="font-weight:400;font-size:.95rem">{{ dieta.restricoes_alimentares }}</div>
+    </div>
+    {% endif %}
+    {% if dieta.alergias_alimentares %}
+    <div class="dado-item">
+      <div class="dado-label">Alergias</div>
+      <div class="dado-valor" style="font-weight:400;font-size:.95rem;color:var(--cor-erro)">⚠️ {{ dieta.alergias_alimentares }}</div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Ficha psicológica -->
+{% if ficha_psico %}
+<div class="secao">
+  <div class="secao-cabecalho">
+    <h2 class="secao-titulo">🧠 Ficha Psicológica</h2>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+    {% if ficha_psico.antecedentes %}
+    <div class="dado-item" style="grid-column:1/-1">
+      <div class="dado-label">Antecedentes</div>
+      <div class="dado-valor" style="font-weight:400;font-size:.95rem">{{ ficha_psico.antecedentes }}</div>
+    </div>
+    {% endif %}
+    {% if ficha_psico.diagnosticos_mentais %}
+    <div class="dado-item">
+      <div class="dado-label">Diagnósticos</div>
+      <div class="dado-valor" style="font-weight:400;font-size:.95rem">{{ ficha_psico.diagnosticos_mentais }}</div>
+    </div>
+    {% endif %}
+    {% if ficha_psico.medicacao_psiquiatrica %}
+    <div class="dado-item">
+      <div class="dado-label">Medicação Psiquiátrica</div>
+      <div class="dado-valor" style="font-weight:400;font-size:.95rem">{{ ficha_psico.medicacao_psiquiatrica }}</div>
+    </div>
+    {% endif %}
+    {% if ficha_psico.comportamento %}
+    <div class="dado-item" style="grid-column:1/-1">
+      <div class="dado-label">Comportamento</div>
+      <div class="dado-valor" style="font-weight:400;font-size:.95rem">{{ ficha_psico.comportamento }}</div>
+    </div>
+    {% endif %}
+  </div>
+  <p style="font-size:.75rem;color:var(--cor-texto-suave);margin-top:.75rem">
+    Atualizado em: {{ ficha_psico.atualizado_em[:16] if ficha_psico.atualizado_em else '—' }}
+  </p>
+</div>
+{% endif %}
+
+<!-- Profissionais consultados -->
+{% if profissionais %}
+<div class="secao">
+  <div class="secao-cabecalho">
+    <h2 class="secao-titulo">👨‍⚕️ Profissionais Consultados</h2>
+  </div>
+  <div class="lista-condicoes">
+    {% for prof in profissionais %}
+    <div class="condicao-item">
+      <div class="condicao-info">
+        <div class="condicao-nome">{{ prof.nome }}</div>
+        {% if prof.especialidade %}<div class="condicao-detalhes">{{ prof.especialidade }}</div>{% endif %}
+        {% if prof.data_consulta %}<div class="condicao-detalhes"><small>Consulta: {{ prof.data_consulta }}</small></div>{% endif %}
+        {% if prof.observacoes %}<div class="condicao-detalhes">{{ prof.observacoes }}</div>{% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Visitas -->
+{% if visitas %}
+<div class="secao">
+  <div class="secao-cabecalho">
+    <h2 class="secao-titulo">👥 Últimas Visitas</h2>
+  </div>
+  {% for v in visitas %}
+  <div style="padding:.75rem 0;border-bottom:1px solid var(--cor-borda)">
+    <div style="font-weight:700">{{ v.visitante_nome }}{% if v.visitante_parentesco %} ({{ v.visitante_parentesco }}){% endif %}</div>
+    <div style="font-size:.85rem;color:var(--cor-texto-suave)">
+      📅 {{ v.data_visita }}
+      {% if v.hora_entrada %} · Entrada: {{ v.hora_entrada }}{% endif %}
+      {% if v.hora_saida %} · Saída: {{ v.hora_saida }}{% endif %}
+    </div>
+    {% if v.observacoes %}<div style="font-size:.85rem;font-style:italic;color:var(--cor-texto-suave);margin-top:.25rem">{{ v.observacoes }}</div>{% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Exames -->
+{% if exames %}
+<div class="secao">
+  <div class="secao-cabecalho">
+    <h2 class="secao-titulo">🔬 Resultados de Exames</h2>
+  </div>
+  {% for e in exames %}
+  <div style="padding:.75rem 0;border-bottom:1px solid var(--cor-borda)">
+    <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.3rem">
+      <strong>{{ e.tipo_exame }}</strong>
+      <span style="background:var(--cor-primaria-clara);color:var(--cor-primaria-escura);padding:2px 8px;border-radius:20px;font-size:.75rem;font-weight:600">{{ e.data_exame }}</span>
+    </div>
+    {% if e.laboratorio or e.medico_solicitante %}
+    <div style="font-size:.85rem;color:var(--cor-texto-suave)">
+      {% if e.laboratorio %}🏥 {{ e.laboratorio }}{% endif %}
+      {% if e.medico_solicitante %} · 👨‍⚕️ {{ e.medico_solicitante }}{% endif %}
+    </div>
+    {% endif %}
+    {% if e.resultado %}
+    <div style="background:var(--cor-fundo);border-radius:var(--raio-xs);padding:.5rem .75rem;margin-top:.4rem;font-size:.9rem;border-left:3px solid var(--cor-primaria)">
+      {{ e.resultado }}
+    </div>
+    {% endif %}
+    {% if e.valores_referencia %}
+    <div style="font-size:.8rem;color:var(--cor-texto-suave);margin-top:.25rem">Ref: {{ e.valores_referencia }}</div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}

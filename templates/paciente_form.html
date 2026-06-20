@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block titulo %}{% if paciente %}Editar Paciente{% else %}Novo Paciente{% endif %}{% endblock %}
- 
+
 {% block conteudo %}
 <h1 class="titulo-pagina">
   {% if paciente %}✏️ Editar Paciente{% else %}👤 Novo Paciente{% endif %}
@@ -12,295 +12,278 @@
     Preencha os dados do novo paciente
   {% endif %}
 </p>
- 
-<form method="POST" id="form-paciente"
+
+<form method="POST" id="form-paciente" enctype="multipart/form-data"
       action="{% if paciente %}{{ url_for('editar_paciente', paciente_id=paciente.id) }}{% else %}{{ url_for('novo_paciente') }}{% endif %}">
- 
+
   <!-- DADOS PESSOAIS -->
   <div class="formulario" style="margin-bottom:1rem">
     <div style="font-family:var(--fonte-titulo);font-size:1.15rem;color:var(--cor-primaria-escura);font-weight:700;margin-bottom:1rem">
       👤 Dados Pessoais
     </div>
- 
     <div class="form-grupo">
-      <label class="form-label" for="nome">
-        Nome completo <span class="form-obrigatorio">*</span>
-      </label>
+      <label class="form-label" for="nome">Nome completo <span class="form-obrigatorio">*</span></label>
       <input type="text" id="nome" name="nome" class="form-input" required
              placeholder="Nome completo do paciente"
              value="{{ paciente.nome if paciente else '' }}">
     </div>
- 
     <div class="form-linha">
       <div class="form-grupo">
-        <label class="form-label" for="data_nascimento">
-          Data de nascimento <span class="form-obrigatorio">*</span>
-        </label>
-        <input type="date" id="data_nascimento" name="data_nascimento"
-               class="form-input" required
+        <label class="form-label" for="data_nascimento">Data de nascimento <span class="form-obrigatorio">*</span></label>
+        <input type="date" id="data_nascimento" name="data_nascimento" class="form-input" required
                value="{{ paciente.data_nascimento if paciente else '' }}">
       </div>
       <div class="form-grupo">
         <label class="form-label" for="sexo">Sexo</label>
         <select id="sexo" name="sexo" class="form-select">
           <option value="">Selecione...</option>
-          <option value="Masculino"  {% if paciente and paciente.sexo == 'Masculino' %}selected{% endif %}>Masculino</option>
-          <option value="Feminino"   {% if paciente and paciente.sexo == 'Feminino' %}selected{% endif %}>Feminino</option>
-          <option value="Outro"      {% if paciente and paciente.sexo == 'Outro' %}selected{% endif %}>Outro</option>
+          <option value="Masculino" {% if paciente and paciente.sexo == 'Masculino' %}selected{% endif %}>Masculino</option>
+          <option value="Feminino" {% if paciente and paciente.sexo == 'Feminino' %}selected{% endif %}>Feminino</option>
+          <option value="Outro" {% if paciente and paciente.sexo == 'Outro' %}selected{% endif %}>Outro</option>
         </select>
       </div>
     </div>
- 
     <div class="form-linha">
       <div class="form-grupo">
         <label class="form-label" for="cpf">CPF</label>
-        <input type="text" id="cpf" name="cpf" class="form-input"
-               placeholder="000.000.000-00" data-formato="cpf"
+        <input type="text" id="cpf" name="cpf" class="form-input" placeholder="000.000.000-00" data-formato="cpf"
                value="{{ paciente.cpf if paciente else '' }}">
       </div>
       <div class="form-grupo">
         <label class="form-label" for="rg">RG</label>
-        <input type="text" id="rg" name="rg" class="form-input"
-               value="{{ paciente.rg if paciente else '' }}">
+        <input type="text" id="rg" name="rg" class="form-input" value="{{ paciente.rg if paciente else '' }}">
       </div>
     </div>
- 
     <div class="form-linha">
       <div class="form-grupo">
         <label class="form-label" for="telefone">Telefone</label>
-        <input type="tel" id="telefone" name="telefone" class="form-input"
-               placeholder="(00) 00000-0000" data-formato="telefone"
+        <input type="tel" id="telefone" name="telefone" class="form-input" placeholder="(00) 00000-0000" data-formato="telefone"
                value="{{ paciente.telefone if paciente else '' }}">
       </div>
       <div class="form-grupo">
         <label class="form-label" for="quarto">Quarto</label>
-        <input type="text" id="quarto" name="quarto" class="form-input"
-               placeholder="Ex: 101, A2..."
+        <input type="text" id="quarto" name="quarto" class="form-input" placeholder="Ex: 101, A2..."
                value="{{ paciente.quarto if paciente else '' }}">
       </div>
     </div>
- 
-    <div class="form-grupo">
-      <label class="form-label" for="observacoes">Observações gerais</label>
-      <textarea id="observacoes" name="observacoes" class="form-textarea" rows="3"
-                placeholder="Alergias, restrições, informações para os cuidadores...">{{ paciente.observacoes if paciente else '' }}</textarea>
-    </div>
   </div>
- 
+
   <!-- CONTATO DE EMERGÊNCIA -->
   <div class="formulario" style="margin-bottom:1rem">
     <div style="font-family:var(--fonte-titulo);font-size:1.15rem;color:var(--cor-primaria-escura);font-weight:700;margin-bottom:1rem">
       🚨 Contato de Emergência
     </div>
- 
     <div class="form-linha">
       <div class="form-grupo">
-        <label class="form-label" for="contato_nome">Nome do responsável</label>
-        <input type="text" id="contato_nome" name="contato_emergencia_nome"
-               class="form-input" placeholder="Nome completo"
+        <label class="form-label">Nome do responsável</label>
+        <input type="text" name="contato_emergencia_nome" class="form-input" placeholder="Nome completo"
                value="{{ paciente.contato_emergencia_nome if paciente else '' }}">
       </div>
       <div class="form-grupo">
-        <label class="form-label" for="contato_parentesco">Parentesco</label>
-        <input type="text" id="contato_parentesco" name="contato_emergencia_parentesco"
-               class="form-input" placeholder="Ex: Filha, Esposo..."
+        <label class="form-label">Parentesco</label>
+        <input type="text" name="contato_emergencia_parentesco" class="form-input" placeholder="Ex: Filha, Esposo..."
                value="{{ paciente.contato_emergencia_parentesco if paciente else '' }}">
       </div>
     </div>
- 
     <div class="form-grupo">
-      <label class="form-label" for="contato_tel">Telefone de emergência</label>
-      <input type="tel" id="contato_tel" name="contato_emergencia_telefone"
-             class="form-input" placeholder="(00) 00000-0000" data-formato="telefone"
+      <label class="form-label">Telefone de emergência</label>
+      <input type="tel" name="contato_emergencia_telefone" class="form-input" placeholder="(00) 00000-0000" data-formato="telefone"
              value="{{ paciente.contato_emergencia_telefone if paciente else '' }}">
     </div>
   </div>
- 
+
   <!-- MEDICAMENTOS -->
   <div class="formulario" style="margin-bottom:1rem">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-      <div style="font-family:var(--fonte-titulo);font-size:1.15rem;color:var(--cor-primaria-escura);font-weight:700">
-        💊 Medicamentos
-      </div>
-      <button type="button" class="botao botao-secundario botao-pequeno"
-              onclick="adicionarRemedio()">+ Adicionar remédio</button>
+      <div style="font-family:var(--fonte-titulo);font-size:1.15rem;color:var(--cor-primaria-escura);font-weight:700">💊 Medicamentos</div>
+      <button type="button" class="botao botao-secundario botao-pequeno" onclick="adicionarRemedio()">+ Adicionar remédio</button>
     </div>
- 
-    <p style="font-size:.85rem;color:var(--cor-texto-suave);margin-bottom:1rem">
-      Cadastre os medicamentos com dosagem, frequência e horários.
-    </p>
- 
+    <p style="font-size:.85rem;color:var(--cor-texto-suave);margin-bottom:1rem">Cadastre os medicamentos com dosagem, frequência e horários.</p>
     <div id="remedios-container">
       {% if paciente and medicamentos %}
         {% for m in medicamentos %}
-        <div id="remedio-{{ loop.index0 }}" style="
-            background:var(--cor-fundo);
-            border:1.5px solid var(--cor-borda);
-            border-radius:var(--raio);
-            padding:1rem;
-            margin-bottom:.75rem;
-            border-left:4px solid var(--cor-primaria)">
- 
+        <div id="remedio-{{ loop.index0 }}" style="background:var(--cor-fundo);border:1.5px solid var(--cor-borda);border-radius:var(--raio);padding:1rem;margin-bottom:.75rem;border-left:4px solid var(--cor-primaria)">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.9rem">
-            <strong style="font-size:.9rem;color:var(--cor-primaria-escura)">
-              💊 Remédio {{ loop.index }}
-            </strong>
-            <button type="button" onclick="removerRemedio({{ loop.index0 }})"
-                    style="background:var(--cor-erro-bg);color:var(--cor-erro);
-                           border:none;padding:.3rem .7rem;border-radius:var(--raio-xs);
-                           font-size:.8rem;font-weight:700;cursor:pointer;min-height:32px">
-              Remover
-            </button>
+            <strong style="font-size:.9rem;color:var(--cor-primaria-escura)">💊 Remédio {{ loop.index }}</strong>
+            <button type="button" onclick="removerRemedio({{ loop.index0 }})" style="background:var(--cor-erro-bg);color:var(--cor-erro);border:none;padding:.3rem .7rem;border-radius:var(--raio-xs);font-size:.8rem;font-weight:700;cursor:pointer;min-height:32px">Remover</button>
           </div>
- 
-          <div class="form-grupo">
-            <label class="form-label">Nome <span class="form-obrigatorio">*</span></label>
-            <input type="text" name="med_nome_{{ loop.index0 }}" class="form-input" required
-                   value="{{ m.nome }}" placeholder="Ex: Losartana...">
-          </div>
- 
+          <div class="form-grupo"><label class="form-label">Nome <span class="form-obrigatorio">*</span></label><input type="text" name="med_nome_{{ loop.index0 }}" class="form-input" required value="{{ m.nome }}"></div>
           <div class="form-linha">
-            <div class="form-grupo">
-              <label class="form-label">Dosagem</label>
-              <input type="text" name="med_dosagem_{{ loop.index0 }}" class="form-input"
-                     value="{{ m.dosagem or '' }}" placeholder="Ex: 50mg">
-            </div>
-            <div class="form-grupo">
-              <label class="form-label">Via</label>
+            <div class="form-grupo"><label class="form-label">Dosagem</label><input type="text" name="med_dosagem_{{ loop.index0 }}" class="form-input" value="{{ m.dosagem or '' }}"></div>
+            <div class="form-grupo"><label class="form-label">Via</label>
               <select name="med_via_{{ loop.index0 }}" class="form-select">
                 <option value="">Selecione...</option>
-                <option value="Oral"       {% if m.via_administracao == 'Oral' %}selected{% endif %}>Oral</option>
+                <option value="Oral" {% if m.via_administracao == 'Oral' %}selected{% endif %}>Oral</option>
                 <option value="Sublingual" {% if m.via_administracao == 'Sublingual' %}selected{% endif %}>Sublingual</option>
-                <option value="Tópica"     {% if m.via_administracao == 'Tópica' %}selected{% endif %}>Tópica</option>
-                <option value="Injetável"  {% if m.via_administracao == 'Injetável' %}selected{% endif %}>Injetável</option>
+                <option value="Tópica" {% if m.via_administracao == 'Tópica' %}selected{% endif %}>Tópica</option>
+                <option value="Injetável" {% if m.via_administracao == 'Injetável' %}selected{% endif %}>Injetável</option>
                 <option value="Inalatória" {% if m.via_administracao == 'Inalatória' %}selected{% endif %}>Inalatória</option>
-                <option value="Oftálmica"  {% if m.via_administracao == 'Oftálmica' %}selected{% endif %}>Oftálmica</option>
-                <option value="Retal"      {% if m.via_administracao == 'Retal' %}selected{% endif %}>Retal</option>
+                <option value="Oftálmica" {% if m.via_administracao == 'Oftálmica' %}selected{% endif %}>Oftálmica</option>
+                <option value="Retal" {% if m.via_administracao == 'Retal' %}selected{% endif %}>Retal</option>
               </select>
             </div>
           </div>
- 
           <div style="background:#fff;border:1px solid var(--cor-borda);border-radius:var(--raio-sm);padding:1rem;margin-bottom:1rem">
-            <div style="font-size:.8rem;font-weight:700;color:var(--cor-texto-suave);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.75rem">
-              🔁 Frequência de uso
-            </div>
+            <div style="font-size:.8rem;font-weight:700;color:var(--cor-texto-suave);text-transform:uppercase;margin-bottom:.75rem">🔁 Frequência</div>
             <div class="form-linha">
-              <div class="form-grupo">
-                <label class="form-label">Tipo</label>
-                <select name="med_freq_tipo_{{ loop.index0 }}" class="form-select"
-                        onchange="atualizarFrequencia({{ loop.index0 }}, this.value)">
-                  <option value="diaria">Diária (todo dia)</option>
-                  <option value="semanal">Semanal (dias da semana)</option>
-                  <option value="intervalo">A cada X dias</option>
-                  <option value="condicional">Se necessário (SOS)</option>
-                </select>
-              </div>
-              <div class="form-grupo" id="doses-dia-wrap-{{ loop.index0 }}">
-                <label class="form-label">Doses por dia</label>
-                <select name="med_doses_dia_{{ loop.index0 }}" class="form-select"
-                        onchange="atualizarHorarios({{ loop.index0 }}, this.value)">
-                  <option value="1">1 vez ao dia</option>
-                  <option value="2">2 vezes ao dia</option>
-                  <option value="3">3 vezes ao dia</option>
-                  <option value="4">4 vezes ao dia</option>
-                  <option value="outro">Outro</option>
-                </select>
-              </div>
+              <div class="form-grupo"><label class="form-label">Tipo</label><select name="med_freq_tipo_{{ loop.index0 }}" class="form-select" onchange="atualizarFrequencia({{ loop.index0 }},this.value)"><option value="diaria">Diária</option><option value="semanal">Semanal</option><option value="intervalo">A cada X dias</option><option value="condicional">SOS</option></select></div>
+              <div class="form-grupo" id="doses-dia-wrap-{{ loop.index0 }}"><label class="form-label">Doses/dia</label><select name="med_doses_dia_{{ loop.index0 }}" class="form-select" onchange="atualizarHorarios({{ loop.index0 }},this.value)"><option value="1">1x</option><option value="2">2x</option><option value="3">3x</option><option value="4">4x</option><option value="outro">Outro</option></select></div>
             </div>
- 
-            <div id="dias-semana-wrap-{{ loop.index0 }}" style="display:none;margin-bottom:.75rem">
-              <label class="form-label" style="margin-bottom:.5rem">Dias da semana</label>
-              <div style="display:flex;flex-wrap:wrap;gap:.4rem">
-                {% for dia in ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'] %}
-                <label style="display:flex;align-items:center;gap:.3rem;background:#fff;
-                              border:1.5px solid var(--cor-borda);border-radius:var(--raio-xs);
-                              padding:.35rem .6rem;cursor:pointer;font-size:.85rem;font-weight:600">
-                  <input type="checkbox" name="med_dias_{{ loop.index0 }}[]"
-                         value="{{ loop.index0 }}"
-                         style="width:16px;height:16px;accent-color:var(--cor-primaria)">
-                  {{ dia }}
-                </label>
-                {% endfor %}
-              </div>
-            </div>
- 
-            <div id="intervalo-wrap-{{ loop.index0 }}" style="display:none;margin-bottom:.75rem">
-              <label class="form-label">Administrar a cada quantos dias?</label>
-              <div style="display:flex;align-items:center;gap:.5rem">
-                <input type="number" name="med_intervalo_{{ loop.index0 }}" class="form-input"
-                       min="2" max="90" value="2" style="width:80px;flex:none">
-                <span style="font-size:.9rem;color:var(--cor-texto-suave)">dias</span>
-              </div>
-            </div>
- 
+            <div id="dias-semana-wrap-{{ loop.index0 }}" style="display:none"></div>
+            <div id="intervalo-wrap-{{ loop.index0 }}" style="display:none"></div>
             <div id="horarios-wrap-{{ loop.index0 }}">
               <label class="form-label" style="margin-bottom:.5rem">🕐 Horários</label>
               <div id="horarios-lista-{{ loop.index0 }}" class="horarios-lista">
-                {% if m.horarios %}
-                  {% for h in m.horarios %}
-                  <div class="horario-item">
-                    <input type="time" name="med_horario_{{ loop.index0 }}[]"
-                           class="form-input" value="{{ h[:5] }}" required>
-                    <button type="button" class="btn-remover-horario"
-                            onclick="removerHorarioRemedio(this, {{ loop.index0 }})">Remover</button>
-                  </div>
-                  {% endfor %}
-                {% else %}
-                  <div class="horario-item">
-                    <input type="time" name="med_horario_{{ loop.index0 }}[]"
-                           class="form-input" required>
-                    <button type="button" class="btn-remover-horario"
-                            onclick="removerHorarioRemedio(this, {{ loop.index0 }})">Remover</button>
-                  </div>
-                {% endif %}
+                {% if m.horarios %}{% for h in m.horarios %}<div class="horario-item"><input type="time" name="med_horario_{{ loop.index0 }}[]" class="form-input" value="{{ h[:5] }}" required><button type="button" class="btn-remover-horario" onclick="removerHorarioRemedio(this,{{ loop.index0 }})">Remover</button></div>{% endfor %}
+                {% else %}<div class="horario-item"><input type="time" name="med_horario_{{ loop.index0 }}[]" class="form-input" required><button type="button" class="btn-remover-horario" onclick="removerHorarioRemedio(this,{{ loop.index0 }})">Remover</button></div>{% endif %}
               </div>
-              <button type="button" class="btn-adicionar-horario"
-                      onclick="adicionarHorarioRemedio({{ loop.index0 }})">
-                + Adicionar horário
-              </button>
+              <button type="button" class="btn-adicionar-horario" onclick="adicionarHorarioRemedio({{ loop.index0 }})">+ Adicionar horário</button>
             </div>
- 
-            <div id="sos-wrap-{{ loop.index0 }}" style="display:none;padding:.75rem;
-                 background:var(--cor-alerta-bg);border-radius:var(--raio-xs);
-                 font-size:.85rem;color:var(--cor-alerta);margin-top:.75rem">
-              ℹ️ Uso <strong>se necessário</strong> — administrar apenas quando indicado.
-            </div>
+            <div id="sos-wrap-{{ loop.index0 }}" style="display:none;padding:.75rem;background:var(--cor-alerta-bg);border-radius:var(--raio-xs);font-size:.85rem;color:var(--cor-alerta);margin-top:.75rem">ℹ️ Uso <strong>se necessário</strong></div>
           </div>
- 
-          <div class="form-grupo">
-            <label class="form-label">Instruções especiais</label>
-            <textarea name="med_instrucoes_{{ loop.index0 }}" class="form-textarea" rows="2"
-                      placeholder="Ex: Tomar após refeição...">{{ m.instrucoes or '' }}</textarea>
+          <div class="form-grupo"><label class="form-label">Instruções</label><textarea name="med_instrucoes_{{ loop.index0 }}" class="form-textarea" rows="2">{{ m.instrucoes or '' }}</textarea></div>
+        </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+    <div id="remedios-vazio" style="{% if paciente and medicamentos %}display:none;{% endif %}text-align:center;padding:2rem 1rem;background:var(--cor-fundo);border-radius:var(--raio-sm);border:2px dashed var(--cor-borda)">
+      <div style="font-size:2rem;margin-bottom:.5rem">💊</div>
+      <p style="color:var(--cor-texto-suave);font-size:.9rem">Nenhum medicamento adicionado.<br>Clique em <strong>"+ Adicionar remédio"</strong> acima.</p>
+    </div>
+  </div>
+
+  <!-- EXAMES -->
+  <div class="formulario" style="margin-bottom:1rem">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+      <div style="font-family:var(--fonte-titulo);font-size:1.15rem;color:var(--cor-primaria-escura);font-weight:700">🔬 Exames</div>
+      <button type="button" class="botao botao-secundario botao-pequeno" onclick="adicionarExame()">+ Adicionar exame</button>
+    </div>
+    <p style="font-size:.85rem;color:var(--cor-texto-suave);margin-bottom:1rem">
+      Registre resultados de exames e anexe o documento (PDF, JPG, PNG ou WEBP).
+      {% if paciente %}Exames já cadastrados podem ser vistos e removidos na aba <strong>Exames</strong> da ficha do paciente.{% endif %}
+    </p>
+    <div id="exames-container"></div>
+    <div id="exames-vazio" style="text-align:center;padding:2rem 1rem;background:var(--cor-fundo);border-radius:var(--raio-sm);border:2px dashed var(--cor-borda)">
+      <div style="font-size:2rem;margin-bottom:.5rem">🔬</div>
+      <p style="color:var(--cor-texto-suave);font-size:.9rem">Nenhum exame adicionado.<br>Clique em <strong>"+ Adicionar exame"</strong> acima.</p>
+    </div>
+  </div>
+
+  <!-- COMORBIDADES E ALIMENTAÇÃO -->
+  <div class="formulario" style="margin-bottom:1rem">
+    <div style="font-family:var(--fonte-titulo);font-size:1.15rem;color:var(--cor-primaria-escura);font-weight:700;margin-bottom:1rem">
+      🥗 Comorbidades e Alimentação
+    </div>
+    <div class="form-grupo">
+      <label class="form-label">Comorbidades</label>
+      <textarea name="comorbidades" class="form-textarea" rows="2"
+                placeholder="Ex: Obesidade, Insuficiência renal, Osteoporose...">{{ dieta.comorbidades if dieta else '' }}</textarea>
+    </div>
+    <div class="form-linha">
+      <div class="form-grupo">
+        <label class="form-label">Dieta Específica</label>
+        <select name="dieta_especifica" class="form-select">
+          <option value="">Selecione...</option>
+          {% for op in ['Dieta livre', 'Dieta hipossódica', 'Dieta hipocalórica', 'Dieta diabética', 'Dieta hipoglicídica', 'Dieta hipolipídica', 'Dieta para insuficiência renal', 'Dieta para disfagia', 'Dieta vegetariana', 'Outra'] %}
+          <option value="{{ op }}" {{ 'selected' if dieta and dieta.dieta_especifica == op else '' }}>{{ op }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-grupo">
+        <label class="form-label">Consistência dos Alimentos</label>
+        <select name="consistencia_alimento" class="form-select">
+          <option value="">Selecione...</option>
+          {% for op in ['Normal', 'Pastosa', 'Semipastosa', 'Líquida', 'Líquida espessada'] %}
+          <option value="{{ op }}" {{ 'selected' if dieta and dieta.consistencia_alimento == op else '' }}>{{ op }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="form-grupo">
+      <label class="form-label">Restrições Alimentares</label>
+      <input type="text" name="restricoes_alimentares" class="form-input"
+             placeholder="Ex: Sem glúten, Sem lactose, Baixo potássio..."
+             value="{{ dieta.restricoes_alimentares if dieta else '' }}">
+    </div>
+    <div class="form-grupo">
+      <label class="form-label">⚠️ Alergias Alimentares</label>
+      <input type="text" name="alergias_alimentares" class="form-input"
+             placeholder="Ex: Amendoim, Frutos do mar, Leite..."
+             value="{{ dieta.alergias_alimentares if dieta else '' }}">
+    </div>
+    <div class="form-grupo">
+      <label class="form-label">Observações Nutricionais</label>
+      <textarea name="observacoes_nutricao" class="form-textarea" rows="2"
+                placeholder="Outras informações sobre alimentação...">{{ dieta.observacoes_nutricao if dieta else '' }}</textarea>
+    </div>
+  </div>
+
+  <!-- FICHA PSICOLÓGICA -->
+  <div class="formulario" style="margin-bottom:1rem">
+    <div style="font-family:var(--fonte-titulo);font-size:1.15rem;color:var(--cor-primaria-escura);font-weight:700;margin-bottom:1rem">
+      🧠 Ficha Psicológica
+    </div>
+    <div class="form-grupo">
+      <label class="form-label">Antecedentes de Problemas Mentais</label>
+      <textarea name="antecedentes" class="form-textarea" rows="3"
+                placeholder="Histórico familiar, episódios anteriores, internações psiquiátricas...">{{ ficha_psico.antecedentes if ficha_psico else '' }}</textarea>
+    </div>
+    <div class="form-grupo">
+      <label class="form-label">Diagnósticos Psiquiátricos</label>
+      <textarea name="diagnosticos_mentais" class="form-textarea" rows="2"
+                placeholder="Ex: Depressão, Ansiedade, Demência, Alzheimer...">{{ ficha_psico.diagnosticos_mentais if ficha_psico else '' }}</textarea>
+    </div>
+    <div class="form-grupo">
+      <label class="form-label">Medicação Psiquiátrica em Uso</label>
+      <input type="text" name="medicacao_psiquiatrica" class="form-input"
+             placeholder="Ex: Alprazolam 0,5mg, Sertralina 50mg..."
+             value="{{ ficha_psico.medicacao_psiquiatrica if ficha_psico else '' }}">
+    </div>
+    <div class="form-grupo">
+      <label class="form-label">Comportamento Observado</label>
+      <textarea name="comportamento" class="form-textarea" rows="2"
+                placeholder="Ex: Agitado à noite, comunicativo, isolado, agressivo...">{{ ficha_psico.comportamento if ficha_psico else '' }}</textarea>
+    </div>
+    <div class="form-grupo">
+      <label class="form-label">Observações Psicológicas</label>
+      <textarea name="observacoes_psico" class="form-textarea" rows="2"
+                placeholder="Outras informações relevantes sobre saúde mental...">{{ ficha_psico.observacoes if ficha_psico else '' }}</textarea>
+    </div>
+  </div>
+
+  <!-- PROFISSIONAIS CONSULTADOS -->
+  <div class="formulario" style="margin-bottom:1rem">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+      <div style="font-family:var(--fonte-titulo);font-size:1.15rem;color:var(--cor-primaria-escura);font-weight:700">👨‍⚕️ Profissionais Consultados</div>
+      <button type="button" class="botao botao-secundario botao-pequeno" onclick="adicionarProfissional()">+ Adicionar</button>
+    </div>
+    <p style="font-size:.85rem;color:var(--cor-texto-suave);margin-bottom:1rem">Registre os profissionais de saúde que já acompanharam este paciente.</p>
+    <div id="profissionais-container">
+      {% if paciente and profissionais %}
+        {% for prof in profissionais %}
+        <div id="prof-{{ loop.index0 }}" style="background:var(--cor-fundo);border:1.5px solid var(--cor-borda);border-radius:var(--raio);padding:1rem;margin-bottom:.75rem;border-left:4px solid var(--cor-secundaria)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.9rem">
+            <strong style="font-size:.9rem;color:var(--cor-primaria-escura)">👨‍⚕️ Profissional {{ loop.index }}</strong>
+            <button type="button" onclick="removerProfissional({{ loop.index0 }})" style="background:var(--cor-erro-bg);color:var(--cor-erro);border:none;padding:.3rem .7rem;border-radius:var(--raio-xs);font-size:.8rem;font-weight:700;cursor:pointer;min-height:32px">Remover</button>
+          </div>
+          <div class="form-linha">
+            <div class="form-grupo"><label class="form-label">Nome <span class="form-obrigatorio">*</span></label><input type="text" name="prof_nome_{{ loop.index0 }}" class="form-input" required value="{{ prof.nome }}"></div>
+            <div class="form-grupo"><label class="form-label">Especialidade</label><input type="text" name="prof_especialidade_{{ loop.index0 }}" class="form-input" value="{{ prof.especialidade or '' }}"></div>
+          </div>
+          <div class="form-linha">
+            <div class="form-grupo"><label class="form-label">Data da Consulta</label><input type="date" name="prof_data_{{ loop.index0 }}" class="form-input" value="{{ prof.data_consulta or '' }}"></div>
+            <div class="form-grupo"><label class="form-label">Observações</label><input type="text" name="prof_obs_{{ loop.index0 }}" class="form-input" value="{{ prof.observacoes or '' }}"></div>
           </div>
         </div>
         {% endfor %}
       {% endif %}
     </div>
- 
-    <div id="remedios-vazio" style="{% if paciente and medicamentos %}display:none;{% endif %}
-         text-align:center;padding:2rem 1rem;background:var(--cor-fundo);
-         border-radius:var(--raio-sm);border:2px dashed var(--cor-borda)">
-      <div style="font-size:2rem;margin-bottom:.5rem">💊</div>
-      <p style="color:var(--cor-texto-suave);font-size:.9rem">
-        Nenhum medicamento adicionado.<br>
-        Clique em <strong>"+ Adicionar remédio"</strong> acima.
-      </p>
+    <div id="profissionais-vazio" style="{% if paciente and profissionais %}display:none;{% endif %}text-align:center;padding:1.5rem 1rem;background:var(--cor-fundo);border-radius:var(--raio-sm);border:2px dashed var(--cor-borda)">
+      <div style="font-size:1.5rem;margin-bottom:.5rem">👨‍⚕️</div>
+      <p style="color:var(--cor-texto-suave);font-size:.9rem">Nenhum profissional adicionado.<br>Clique em <strong>"+ Adicionar"</strong> acima.</p>
     </div>
   </div>
- 
-  <!-- OBSERVAÇÕES -->
-  <div class="formulario" style="margin-bottom:1rem">
-    <div style="font-family:var(--fonte-titulo);font-size:1.15rem;color:var(--cor-primaria-escura);font-weight:700;margin-bottom:1rem">
-      📝 Observações
-    </div>
-    <div class="form-grupo">
-      <label class="form-label" for="obs2">Observações Gerais</label>
-      <textarea id="obs2" name="observacoes" class="form-textarea" rows="4"
-                placeholder="Alergias, preferências, restrições...">{{ paciente.observacoes if paciente else '' }}</textarea>
-      <div class="form-ajuda">Informações que ajudem os cuidadores no dia a dia.</div>
-    </div>
-  </div>
- 
+
   <!-- BOTÕES -->
   <div class="form-botoes">
     <button type="submit" class="botao botao-primario">
@@ -309,221 +292,110 @@
     <a href="{% if paciente %}{{ url_for('detalhe_paciente', paciente_id=paciente.id) }}{% else %}{{ url_for('index') }}{% endif %}"
        class="botao botao-secundario">Cancelar</a>
   </div>
- 
+
 </form>
 {% endblock %}
- 
+
 {% block scripts %}
 <script>
 let remedioIndex = {{ medicamentos | length if paciente and medicamentos else 0 }};
- 
-function adicionarRemedio() {
-  const container = document.getElementById('remedios-container');
-  const vazio     = document.getElementById('remedios-vazio');
-  const idx       = remedioIndex;
- 
-  const diasHtml = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].map((d, i) => `
-    <label style="display:flex;align-items:center;gap:.3rem;background:#fff;
-                  border:1.5px solid var(--cor-borda);border-radius:var(--raio-xs);
-                  padding:.35rem .6rem;cursor:pointer;font-size:.85rem;font-weight:600">
-      <input type="checkbox" name="med_dias_${idx}[]" value="${i}"
-             style="width:16px;height:16px;accent-color:var(--cor-primaria)"> ${d}
-    </label>`).join('');
- 
-  const html = `
-  <div id="remedio-${idx}" style="
-      background:var(--cor-fundo);border:1.5px solid var(--cor-borda);
-      border-radius:var(--raio);padding:1rem;margin-bottom:.75rem;
-      border-left:4px solid var(--cor-primaria)">
- 
+let profIndex = {{ profissionais | length if paciente and profissionais else 0 }};
+let exameIndex = 0;
+
+function adicionarExame() {
+  const container = document.getElementById('exames-container');
+  const vazio = document.getElementById('exames-vazio');
+  const idx = exameIndex;
+  const html = `<div id="exame-${idx}" style="background:var(--cor-fundo);border:1.5px solid var(--cor-borda);border-radius:var(--raio);padding:1rem;margin-bottom:.75rem;border-left:4px solid var(--cor-secundaria)">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.9rem">
-      <strong style="font-size:.9rem;color:var(--cor-primaria-escura)">💊 Remédio ${idx + 1}</strong>
-      <button type="button" onclick="removerRemedio(${idx})"
-              style="background:var(--cor-erro-bg);color:var(--cor-erro);border:none;
-                     padding:.3rem .7rem;border-radius:var(--raio-xs);font-size:.8rem;
-                     font-weight:700;cursor:pointer;min-height:32px">Remover</button>
+      <strong style="font-size:.9rem;color:var(--cor-primaria-escura)">🔬 Exame ${idx+1}</strong>
+      <button type="button" onclick="removerExame(${idx})" style="background:var(--cor-erro-bg);color:var(--cor-erro);border:none;padding:.3rem .7rem;border-radius:var(--raio-xs);font-size:.8rem;font-weight:700;cursor:pointer;min-height:32px">Remover</button>
     </div>
- 
-    <div class="form-grupo">
-      <label class="form-label">Nome <span class="form-obrigatorio">*</span></label>
-      <input type="text" name="med_nome_${idx}" class="form-input" required
-             placeholder="Ex: Losartana, Metformina, Omeprazol...">
-    </div>
- 
+    <div class="form-grupo"><label class="form-label">Tipo de Exame <span class="form-obrigatorio">*</span></label><input type="text" name="exame_tipo_${idx}" class="form-input" required placeholder="Ex: Hemograma, Glicemia, Raio-X..."></div>
     <div class="form-linha">
-      <div class="form-grupo">
-        <label class="form-label">Dosagem</label>
-        <input type="text" name="med_dosagem_${idx}" class="form-input"
-               placeholder="Ex: 50mg, 1 comprimido, 10ml">
-      </div>
-      <div class="form-grupo">
-        <label class="form-label">Via</label>
-        <select name="med_via_${idx}" class="form-select">
-          <option value="">Selecione...</option>
-          <option value="Oral">Oral</option>
-          <option value="Sublingual">Sublingual</option>
-          <option value="Tópica">Tópica</option>
-          <option value="Injetável">Injetável</option>
-          <option value="Inalatória">Inalatória</option>
-          <option value="Oftálmica">Oftálmica (Olhos)</option>
-          <option value="Retal">Retal</option>
-        </select>
-      </div>
+      <div class="form-grupo"><label class="form-label">Data do Exame</label><input type="date" name="exame_data_${idx}" class="form-input"></div>
+      <div class="form-grupo"><label class="form-label">Laboratório / Clínica</label><input type="text" name="exame_laboratorio_${idx}" class="form-input"></div>
     </div>
- 
-    <div style="background:#fff;border:1px solid var(--cor-borda);border-radius:var(--raio-sm);padding:1rem;margin-bottom:1rem">
-      <div style="font-size:.8rem;font-weight:700;color:var(--cor-texto-suave);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.75rem">
-        🔁 Frequência de uso
-      </div>
-      <div class="form-linha">
-        <div class="form-grupo">
-          <label class="form-label">Tipo</label>
-          <select name="med_freq_tipo_${idx}" class="form-select"
-                  onchange="atualizarFrequencia(${idx}, this.value)">
-            <option value="diaria">Diária (todo dia)</option>
-            <option value="semanal">Semanal (dias da semana)</option>
-            <option value="intervalo">A cada X dias</option>
-            <option value="condicional">Se necessário (SOS)</option>
-          </select>
-        </div>
-        <div class="form-grupo" id="doses-dia-wrap-${idx}">
-          <label class="form-label">Doses por dia</label>
-          <select name="med_doses_dia_${idx}" class="form-select"
-                  onchange="atualizarHorarios(${idx}, this.value)">
-            <option value="1">1 vez ao dia</option>
-            <option value="2">2 vezes ao dia</option>
-            <option value="3">3 vezes ao dia</option>
-            <option value="4">4 vezes ao dia</option>
-            <option value="outro">Outro</option>
-          </select>
-        </div>
-      </div>
- 
-      <div id="dias-semana-wrap-${idx}" style="display:none;margin-bottom:.75rem">
-        <label class="form-label" style="margin-bottom:.5rem">Dias da semana</label>
-        <div style="display:flex;flex-wrap:wrap;gap:.4rem">${diasHtml}</div>
-      </div>
- 
-      <div id="intervalo-wrap-${idx}" style="display:none;margin-bottom:.75rem">
-        <label class="form-label">Administrar a cada quantos dias?</label>
-        <div style="display:flex;align-items:center;gap:.5rem">
-          <input type="number" name="med_intervalo_${idx}" class="form-input"
-                 min="2" max="90" value="2" style="width:80px;flex:none">
-          <span style="font-size:.9rem;color:var(--cor-texto-suave)">dias</span>
-        </div>
-      </div>
- 
-      <div id="horarios-wrap-${idx}">
-        <label class="form-label" style="margin-bottom:.5rem">🕐 Horários</label>
-        <div id="horarios-lista-${idx}" class="horarios-lista">
-          <div class="horario-item">
-            <input type="time" name="med_horario_${idx}[]" class="form-input" required>
-            <button type="button" class="btn-remover-horario"
-                    onclick="removerHorarioRemedio(this, ${idx})">Remover</button>
-          </div>
-        </div>
-        <button type="button" class="btn-adicionar-horario"
-                onclick="adicionarHorarioRemedio(${idx})">+ Adicionar horário</button>
-        <p class="form-ajuda">Informe todos os horários em que o remédio deve ser dado neste dia.</p>
-      </div>
- 
-      <div id="sos-wrap-${idx}" style="display:none;padding:.75rem;
-           background:var(--cor-alerta-bg);border-radius:var(--raio-xs);
-           font-size:.85rem;color:var(--cor-alerta);margin-top:.75rem">
-        ℹ️ Uso <strong>se necessário</strong> — administrar apenas quando indicado pelo médico.
-      </div>
-    </div>
- 
-    <div class="form-grupo">
-      <label class="form-label">Instruções especiais</label>
-      <textarea name="med_instrucoes_${idx}" class="form-textarea" rows="2"
-                placeholder="Ex: Tomar após refeição, não partir o comprimido..."></textarea>
-    </div>
+    <div class="form-grupo"><label class="form-label">Médico Solicitante</label><input type="text" name="exame_medico_${idx}" class="form-input"></div>
+    <div class="form-grupo"><label class="form-label">Resultado</label><textarea name="exame_resultado_${idx}" class="form-textarea" rows="2"></textarea></div>
+    <div class="form-grupo"><label class="form-label">Valores de Referência</label><input type="text" name="exame_valores_${idx}" class="form-input"></div>
+    <div class="form-grupo"><label class="form-label">Observações</label><input type="text" name="exame_obs_${idx}" class="form-input"></div>
+    <div class="form-grupo"><label class="form-label">📎 Anexar Documento</label><input type="file" name="exame_arquivo_${idx}" class="form-input" accept=".pdf,.png,.jpg,.jpeg,.webp"></div>
   </div>`;
- 
   container.insertAdjacentHTML('beforeend', html);
-  remedioIndex++;
+  exameIndex++;
   vazio.style.display = 'none';
-  document.getElementById(`remedio-${idx}`)
-          .scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.getElementById(`exame-${idx}`).scrollIntoView({behavior:'smooth',block:'start'});
 }
- 
-function removerRemedio(idx) {
-  const card      = document.getElementById(`remedio-${idx}`);
-  const container = document.getElementById('remedios-container');
-  const vazio     = document.getElementById('remedios-vazio');
+
+function removerExame(idx) {
+  const card = document.getElementById(`exame-${idx}`);
+  const container = document.getElementById('exames-container');
+  const vazio = document.getElementById('exames-vazio');
   if (card) card.remove();
   if (container.children.length === 0) vazio.style.display = '';
 }
- 
+
+function adicionarRemedio() {
+  const container = document.getElementById('remedios-container');
+  const vazio = document.getElementById('remedios-vazio');
+  const idx = remedioIndex;
+  const diasHtml = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].map((d,i) => `<label style="display:flex;align-items:center;gap:.3rem;background:#fff;border:1.5px solid var(--cor-borda);border-radius:var(--raio-xs);padding:.35rem .6rem;cursor:pointer;font-size:.85rem;font-weight:600"><input type="checkbox" name="med_dias_${idx}[]" value="${i}" style="width:16px;height:16px;accent-color:var(--cor-primaria)"> ${d}</label>`).join('');
+  const html = `<div id="remedio-${idx}" style="background:var(--cor-fundo);border:1.5px solid var(--cor-borda);border-radius:var(--raio);padding:1rem;margin-bottom:.75rem;border-left:4px solid var(--cor-primaria)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.9rem"><strong style="font-size:.9rem;color:var(--cor-primaria-escura)">💊 Remédio ${idx+1}</strong><button type="button" onclick="removerRemedio(${idx})" style="background:var(--cor-erro-bg);color:var(--cor-erro);border:none;padding:.3rem .7rem;border-radius:var(--raio-xs);font-size:.8rem;font-weight:700;cursor:pointer;min-height:32px">Remover</button></div><div class="form-grupo"><label class="form-label">Nome <span class="form-obrigatorio">*</span></label><input type="text" name="med_nome_${idx}" class="form-input" required placeholder="Ex: Losartana, Metformina..."></div><div class="form-linha"><div class="form-grupo"><label class="form-label">Dosagem</label><input type="text" name="med_dosagem_${idx}" class="form-input" placeholder="Ex: 50mg"></div><div class="form-grupo"><label class="form-label">Via</label><select name="med_via_${idx}" class="form-select"><option value="">Selecione...</option><option value="Oral">Oral</option><option value="Sublingual">Sublingual</option><option value="Tópica">Tópica</option><option value="Injetável">Injetável</option><option value="Inalatória">Inalatória</option><option value="Oftálmica">Oftálmica</option><option value="Retal">Retal</option></select></div></div><div style="background:#fff;border:1px solid var(--cor-borda);border-radius:var(--raio-sm);padding:1rem;margin-bottom:1rem"><div style="font-size:.8rem;font-weight:700;color:var(--cor-texto-suave);text-transform:uppercase;margin-bottom:.75rem">🔁 Frequência</div><div class="form-linha"><div class="form-grupo"><label class="form-label">Tipo</label><select name="med_freq_tipo_${idx}" class="form-select" onchange="atualizarFrequencia(${idx},this.value)"><option value="diaria">Diária</option><option value="semanal">Semanal</option><option value="intervalo">A cada X dias</option><option value="condicional">SOS</option></select></div><div class="form-grupo" id="doses-dia-wrap-${idx}"><label class="form-label">Doses/dia</label><select name="med_doses_dia_${idx}" class="form-select" onchange="atualizarHorarios(${idx},this.value)"><option value="1">1x</option><option value="2">2x</option><option value="3">3x</option><option value="4">4x</option><option value="outro">Outro</option></select></div></div><div id="dias-semana-wrap-${idx}" style="display:none;margin-bottom:.75rem"><label class="form-label" style="margin-bottom:.5rem">Dias da semana</label><div style="display:flex;flex-wrap:wrap;gap:.4rem">${diasHtml}</div></div><div id="intervalo-wrap-${idx}" style="display:none;margin-bottom:.75rem"><label class="form-label">A cada quantos dias?</label><div style="display:flex;align-items:center;gap:.5rem"><input type="number" name="med_intervalo_${idx}" class="form-input" min="2" max="90" value="2" style="width:80px;flex:none"><span style="font-size:.9rem;color:var(--cor-texto-suave)">dias</span></div></div><div id="horarios-wrap-${idx}"><label class="form-label" style="margin-bottom:.5rem">🕐 Horários</label><div id="horarios-lista-${idx}" class="horarios-lista"><div class="horario-item"><input type="time" name="med_horario_${idx}[]" class="form-input" required><button type="button" class="btn-remover-horario" onclick="removerHorarioRemedio(this,${idx})">Remover</button></div></div><button type="button" class="btn-adicionar-horario" onclick="adicionarHorarioRemedio(${idx})">+ Adicionar horário</button></div><div id="sos-wrap-${idx}" style="display:none;padding:.75rem;background:var(--cor-alerta-bg);border-radius:var(--raio-xs);font-size:.85rem;color:var(--cor-alerta);margin-top:.75rem">ℹ️ Uso <strong>se necessário</strong></div></div><div class="form-grupo"><label class="form-label">Instruções</label><textarea name="med_instrucoes_${idx}" class="form-textarea" rows="2" placeholder="Ex: Tomar após refeição..."></textarea></div></div>`;
+  container.insertAdjacentHTML('beforeend', html);
+  remedioIndex++;
+  vazio.style.display = 'none';
+  document.getElementById(`remedio-${idx}`).scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function removerRemedio(idx) {
+  const card = document.getElementById(`remedio-${idx}`);
+  const container = document.getElementById('remedios-container');
+  const vazio = document.getElementById('remedios-vazio');
+  if (card) card.remove();
+  if (container.children.length === 0) vazio.style.display = '';
+}
+
 function atualizarFrequencia(idx, tipo) {
-  const dias      = document.getElementById(`dias-semana-wrap-${idx}`);
-  const intervalo = document.getElementById(`intervalo-wrap-${idx}`);
-  const horarios  = document.getElementById(`horarios-wrap-${idx}`);
-  const dosesDia  = document.getElementById(`doses-dia-wrap-${idx}`);
-  const sos       = document.getElementById(`sos-wrap-${idx}`);
- 
-  dias.style.display = 'none';
-  intervalo.style.display = 'none';
-  sos.style.display = 'none';
-  horarios.style.display = '';
-  dosesDia.style.display = '';
- 
-  if (tipo === 'semanal')     dias.style.display      = '';
-  if (tipo === 'intervalo')   intervalo.style.display = '';
-  if (tipo === 'condicional') {
-    horarios.style.display = 'none';
-    dosesDia.style.display = 'none';
-    sos.style.display      = '';
-  }
+  const dias=document.getElementById(`dias-semana-wrap-${idx}`),intervalo=document.getElementById(`intervalo-wrap-${idx}`),horarios=document.getElementById(`horarios-wrap-${idx}`),dosesDia=document.getElementById(`doses-dia-wrap-${idx}`),sos=document.getElementById(`sos-wrap-${idx}`);
+  dias.style.display='none';intervalo.style.display='none';sos.style.display='none';horarios.style.display='';dosesDia.style.display='';
+  if(tipo==='semanal')dias.style.display='';if(tipo==='intervalo')intervalo.style.display='';if(tipo==='condicional'){horarios.style.display='none';dosesDia.style.display='none';sos.style.display='';}
 }
- 
+
 function atualizarHorarios(idx, qtd) {
-  const lista = document.getElementById(`horarios-lista-${idx}`);
-  if (!lista || qtd === 'outro') return;
-  const sugestoes = {
-    '1': ['08:00'],
-    '2': ['08:00','20:00'],
-    '3': ['08:00','14:00','20:00'],
-    '4': ['08:00','12:00','18:00','22:00'],
-  };
-  lista.innerHTML = (sugestoes[qtd] || []).map(h => `
-    <div class="horario-item">
-      <input type="time" name="med_horario_${idx}[]"
-             class="form-input" value="${h}" required>
-      <button type="button" class="btn-remover-horario"
-              onclick="removerHorarioRemedio(this, ${idx})">Remover</button>
-    </div>`).join('');
+  const lista=document.getElementById(`horarios-lista-${idx}`);if(!lista||qtd==='outro')return;
+  const s={'1':['08:00'],'2':['08:00','20:00'],'3':['08:00','14:00','20:00'],'4':['08:00','12:00','18:00','22:00']};
+  lista.innerHTML=(s[qtd]||[]).map(h=>`<div class="horario-item"><input type="time" name="med_horario_${idx}[]" class="form-input" value="${h}" required><button type="button" class="btn-remover-horario" onclick="removerHorarioRemedio(this,${idx})">Remover</button></div>`).join('');
 }
- 
+
 function adicionarHorarioRemedio(idx) {
-  const lista = document.getElementById(`horarios-lista-${idx}`);
-  if (!lista) return;
-  const item = document.createElement('div');
-  item.className = 'horario-item';
-  item.innerHTML = `
-    <input type="time" name="med_horario_${idx}[]" class="form-input" required>
-    <button type="button" class="btn-remover-horario"
-            onclick="removerHorarioRemedio(this, ${idx})">Remover</button>`;
-  lista.appendChild(item);
-  item.querySelector('input').focus();
+  const lista=document.getElementById(`horarios-lista-${idx}`);if(!lista)return;
+  const item=document.createElement('div');item.className='horario-item';
+  item.innerHTML=`<input type="time" name="med_horario_${idx}[]" class="form-input" required><button type="button" class="btn-remover-horario" onclick="removerHorarioRemedio(this,${idx})">Remover</button>`;
+  lista.appendChild(item);item.querySelector('input').focus();
 }
- 
+
 function removerHorarioRemedio(botao, idx) {
-  const lista = document.getElementById(`horarios-lista-${idx}`);
-  if (!lista) return;
-  if (lista.querySelectorAll('.horario-item').length > 1) {
-    botao.parentElement.remove();
-  } else {
-    mostrarToast('É necessário pelo menos um horário.', 'erro');
-  }
+  const lista=document.getElementById(`horarios-lista-${idx}`);if(!lista)return;
+  if(lista.querySelectorAll('.horario-item').length>1)botao.parentElement.remove();
+  else mostrarToast('É necessário pelo menos um horário.','erro');
 }
- 
-let formAlterado = false;
-document.getElementById('form-paciente').addEventListener('input', () => { formAlterado = true; });
-window.addEventListener('beforeunload', e => {
-  if (formAlterado) { e.preventDefault(); e.returnValue = ''; }
-});
-document.getElementById('form-paciente').addEventListener('submit', () => { formAlterado = false; });
+
+function adicionarProfissional() {
+  const container=document.getElementById('profissionais-container'),vazio=document.getElementById('profissionais-vazio'),idx=profIndex;
+  const html=`<div id="prof-${idx}" style="background:var(--cor-fundo);border:1.5px solid var(--cor-borda);border-radius:var(--raio);padding:1rem;margin-bottom:.75rem;border-left:4px solid var(--cor-secundaria)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.9rem"><strong style="font-size:.9rem;color:var(--cor-primaria-escura)">👨‍⚕️ Profissional ${idx+1}</strong><button type="button" onclick="removerProfissional(${idx})" style="background:var(--cor-erro-bg);color:var(--cor-erro);border:none;padding:.3rem .7rem;border-radius:var(--raio-xs);font-size:.8rem;font-weight:700;cursor:pointer;min-height:32px">Remover</button></div><div class="form-linha"><div class="form-grupo"><label class="form-label">Nome <span class="form-obrigatorio">*</span></label><input type="text" name="prof_nome_${idx}" class="form-input" required placeholder="Ex: Dr. João Silva"></div><div class="form-grupo"><label class="form-label">Especialidade</label><input type="text" name="prof_especialidade_${idx}" class="form-input" placeholder="Ex: Psiquiatra, Neurologista..."></div></div><div class="form-linha"><div class="form-grupo"><label class="form-label">Data da Consulta</label><input type="date" name="prof_data_${idx}" class="form-input"></div><div class="form-grupo"><label class="form-label">Observações</label><input type="text" name="prof_obs_${idx}" class="form-input" placeholder="Resultado, encaminhamentos..."></div></div></div>`;
+  container.insertAdjacentHTML('beforeend',html);profIndex++;vazio.style.display='none';
+  document.getElementById(`prof-${idx}`).scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function removerProfissional(idx) {
+  const card=document.getElementById(`prof-${idx}`),container=document.getElementById('profissionais-container'),vazio=document.getElementById('profissionais-vazio');
+  if(card)card.remove();if(container.children.length===0)vazio.style.display='';
+}
+
+let formAlterado=false;
+document.getElementById('form-paciente').addEventListener('input',()=>{formAlterado=true;});
+window.addEventListener('beforeunload',e=>{if(formAlterado){e.preventDefault();e.returnValue='';}});
+document.getElementById('form-paciente').addEventListener('submit',()=>{formAlterado=false;});
 </script>
 {% endblock %}

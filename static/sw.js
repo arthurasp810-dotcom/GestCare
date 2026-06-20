@@ -1,10 +1,15 @@
 /* Service Worker — cache para funcionamento offline */
-const CACHE = 'casa-idosos-v1';
+const CACHE = 'casa-idosos-v2';
 const ASSETS = [
   '/',
   '/agenda',
   '/static/css/style.css',
-  '/static/js/app.js'
+  '/static/js/app.js',
+  '/static/manifest.json',
+  '/static/icons/icon-192.png',
+  '/static/icons/icon-512.png',
+  '/static/icons/apple-touch-icon.png',
+  '/static/icons/favicon-32.png'
 ];
 
 self.addEventListener('install', e => {
@@ -36,5 +41,36 @@ self.addEventListener('fetch', e => {
         return res;
       })
       .catch(() => caches.match(e.request))
+  );
+});
+
+// ── NOTIFICAÇÕES PUSH (lembrete de antibiótico, etc.) ───────
+self.addEventListener('push', e => {
+  let dados = { title: 'GestCare', body: 'Você tem uma nova notificação.' };
+  try {
+    if (e.data) dados = e.data.json();
+  } catch (err) {
+    if (e.data) dados.body = e.data.text();
+  }
+  const opcoes = {
+    body: dados.body || '',
+    tag: dados.url || 'gestcare-notificacao',
+    renotify: true,
+    data: { url: dados.url || '/' }
+  };
+  e.waitUntil(self.registration.showNotification(dados.title || 'GestCare', opcoes));
+});
+
+// Clique na notificação abre (ou foca) a página do paciente
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const url = (e.notification.data && e.notification.data.url) || '/';
+  e.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(janelas => {
+      for (const cliente of janelas) {
+        if (cliente.url.includes(url) && 'focus' in cliente) return cliente.focus();
+      }
+      if (self.clients.openWindow) return self.clients.openWindow(url);
+    })
   );
 });
