@@ -570,9 +570,15 @@ def login():
         if session.get('usuario_perfil') == 'superadmin':
             return redirect(url_for('listar_casas'))
         return redirect(url_for('index'))
+
+    with get_db() as conn:
+        casas_login = conn.execute('SELECT id, nome FROM casas WHERE ativo = 1 ORDER BY nome').fetchall()
+
     if request.method == 'POST':
         email = request.form.get('email', '').strip()
         senha = request.form.get('senha', '')
+        casa_id_escolhida = request.form.get('casa_id') or None
+
         with get_db() as conn:
             usuario = conn.execute(
                 'SELECT * FROM usuarios WHERE LOWER(email) = LOWER(?) AND ativo = 1',
@@ -584,9 +590,14 @@ def login():
                     'SELECT * FROM casas WHERE id = ?', (usuario['casa_id'],)
                 ).fetchone()
 
+        if (usuario and casa_id_escolhida and usuario['casa_id']
+                and str(usuario['casa_id']) != str(casa_id_escolhida)):
+            flash('Este e-mail não pertence à casa selecionada. Confira e tente novamente.', 'erro')
+            return render_template('login.html', casas=casas_login)
+
         if usuario and usuario['casa_id'] and (not casa or not casa['ativo']):
             flash('O acesso da sua instituição está temporariamente desativado. Contate o suporte.', 'erro')
-            return render_template('login.html')
+            return render_template('login.html', casas=casas_login)
 
         if usuario and verificar_senha(senha, usuario['senha']):
             session.permanent = True
@@ -606,7 +617,8 @@ def login():
             return redirect(url_for('index'))
         else:
             flash('E-mail ou senha incorretos.', 'erro')
-    return render_template('login.html')
+            return render_template('login.html', casas=casas_login)
+    return render_template('login.html', casas=casas_login)
 
 
 @app.route('/responsavel/cadastro', methods=['GET', 'POST'])
@@ -726,8 +738,12 @@ def meu_perfil():
         return redirect(url_for('listar_casas'))
 
     usuario_id = session['usuario_id']
+    eh_admin = session.get('usuario_perfil') == 'admin'
     with get_db() as conn:
         usuario = conn.execute('SELECT * FROM usuarios WHERE id = ?', (usuario_id,)).fetchone()
+        casa = None
+        if eh_admin:
+            casa = conn.execute('SELECT * FROM casas WHERE id = ?', (casa_id_atual(),)).fetchone()
 
         if request.method == 'POST':
             dados = request.form
@@ -736,29 +752,33 @@ def meu_perfil():
             senha_atual = dados.get('senha_atual', '')
             senha_nova  = dados.get('senha_nova', '')
             senha_nova2 = dados.get('confirmar_senha_nova', '')
+            nome_casa   = dados.get('nome_casa', '').strip()
 
             if not nome or not email:
                 flash('Nome e e-mail são obrigatórios.', 'erro')
-                return render_template('meu_perfil.html', usuario=usuario)
+                return render_template('meu_perfil.html', usuario=usuario, casa=casa)
+            if eh_admin and not nome_casa:
+                flash('Informe o nome da casa.', 'erro')
+                return render_template('meu_perfil.html', usuario=usuario, casa=casa)
 
             quer_trocar_senha = bool(senha_nova or senha_nova2)
             email_mudou = email.lower() != usuario['email'].lower()
 
             if (quer_trocar_senha or email_mudou) and not senha_atual:
                 flash('Informe sua senha atual para confirmar a alteração de e-mail ou senha.', 'erro')
-                return render_template('meu_perfil.html', usuario=usuario)
+                return render_template('meu_perfil.html', usuario=usuario, casa=casa)
 
             if (quer_trocar_senha or email_mudou) and not verificar_senha(senha_atual, usuario['senha']):
                 flash('Senha atual incorreta.', 'erro')
-                return render_template('meu_perfil.html', usuario=usuario)
+                return render_template('meu_perfil.html', usuario=usuario, casa=casa)
 
             if quer_trocar_senha:
                 if len(senha_nova) < 6:
                     flash('A nova senha deve ter pelo menos 6 caracteres.', 'erro')
-                    return render_template('meu_perfil.html', usuario=usuario)
+                    return render_template('meu_perfil.html', usuario=usuario, casa=casa)
                 if senha_nova != senha_nova2:
                     flash('As senhas novas não coincidem.', 'erro')
-                    return render_template('meu_perfil.html', usuario=usuario)
+                    return render_template('meu_perfil.html', usuario=usuario, casa=casa)
 
             try:
                 if quer_trocar_senha:
@@ -773,13 +793,17 @@ def meu_perfil():
                     )
             except sqlite3.IntegrityError:
                 flash('Este e-mail já está em uso por outra conta.', 'erro')
-                return render_template('meu_perfil.html', usuario=usuario)
+                return render_template('meu_perfil.html', usuario=usuario, casa=casa)
+
+            if eh_admin:
+                conn.execute('UPDATE casas SET nome = ? WHERE id = ?', (nome_casa, casa_id_atual()))
+                session['casa_nome'] = nome_casa
 
             session['usuario_nome'] = nome
             flash('Perfil atualizado com sucesso!', 'sucesso')
             return redirect(url_for('meu_perfil'))
 
-    return render_template('meu_perfil.html', usuario=usuario)
+    return render_template('meu_perfil.html', usuario=usuario, casa=casa)
 
 
 @app.route('/logout')

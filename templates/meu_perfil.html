@@ -20,6 +20,15 @@
       <input type="email" id="email" name="email" class="form-input" required value="{{ usuario.email }}">
     </div>
 
+    {% if casa %}
+    <hr style="border:none;border-top:1px solid var(--cor-borda);margin:1.25rem 0">
+    <div class="form-grupo">
+      <label class="form-label" for="nome_casa">🏘️ Nome da Casa</label>
+      <input type="text" id="nome_casa" name="nome_casa" class="form-input" required value="{{ casa.nome }}">
+      <small style="color:var(--cor-texto-suave)">Esse nome aparece para toda a sua equipe e para os responsáveis.</small>
+    </div>
+    {% endif %}
+
     <hr style="border:none;border-top:1px solid var(--cor-borda);margin:1.25rem 0">
     <p style="font-size:.85rem;color:var(--cor-texto-suave);margin-bottom:1rem">
       Para trocar seu e-mail ou definir uma nova senha, confirme sua senha atual.

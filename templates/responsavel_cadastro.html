@@ -33,13 +33,16 @@
 
     <form method="POST">
       <div class="form-grupo">
-        <label class="form-label" for="casa_id">Instituição do idoso</label>
+        <label class="form-label" for="casa_id">🏘️ Em qual casa seu familiar está? <span class="form-obrigatorio">*</span></label>
         <select id="casa_id" name="casa_id" class="form-input" required>
-          <option value="">— Selecione a casa —</option>
+          <option value="">— Selecione a instituição —</option>
           {% for c in casas %}
           <option value="{{ c.id }}">{{ c.nome }}</option>
           {% endfor %}
         </select>
+        <small style="color:var(--cor-texto-suave);display:block;margin-top:4px">
+          Escolha com atenção: depois você vai confirmar com o CPF/RG do idoso, e ele precisa estar cadastrado nesta casa.
+        </small>
       </div>
       <div class="form-grupo">
         <label class="form-label" for="nome">Seu nome completo</label>
