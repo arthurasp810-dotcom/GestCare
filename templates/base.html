@@ -151,11 +151,19 @@
       <span class="nav-bottom-icon"><i class="ti ti-users" aria-hidden="true"></i></span>
       <span>Pacientes</span>
     </a>
+    {% if session.get('usuario_perfil') == 'admin' %}
+    <a href="{{ url_for('listar_usuarios') }}"
+       class="nav-bottom-item {% if request.endpoint == 'listar_usuarios' %}ativo{% endif %}">
+      <span class="nav-bottom-icon"><i class="ti ti-user-cog" aria-hidden="true"></i></span>
+      <span>Usuários</span>
+    </a>
+    {% else %}
     <a href="{{ url_for('agenda_diaria') }}"
        class="nav-bottom-item {% if request.endpoint == 'agenda_diaria' %}ativo{% endif %}">
       <span class="nav-bottom-icon"><i class="ti ti-calendar" aria-hidden="true"></i></span>
       <span>Agenda</span>
     </a>
+    {% endif %}
     <a href="{{ url_for('novo_paciente') }}"
        class="nav-bottom-item {% if request.endpoint == 'novo_paciente' %}ativo{% endif %}">
       <span class="nav-bottom-icon"><i class="ti ti-plus" aria-hidden="true"></i></span>
