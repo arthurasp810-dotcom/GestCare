@@ -165,11 +165,11 @@ def init_db():
         except Exception:
             pass
         # Populate slugs for existing casas that have none
-        sem_slug = cursor.execute('SELECT id, nome FROM casas WHERE slug IS NULL OR slug = ""').fetchall()
+        sem_slug = conn.execute('SELECT id, nome FROM casas WHERE slug IS NULL OR slug = ""').fetchall()
         for row in sem_slug:
             base = gerar_slug(row['nome'])
             slug = slug_unico(conn, base)
-            cursor.execute('UPDATE casas SET slug = ? WHERE id = ?', (slug, row['id']))
+            conn.execute('UPDATE casas SET slug = ? WHERE id = ?', (slug, row['id']))
 
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS pacientes (
