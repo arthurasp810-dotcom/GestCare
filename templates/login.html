@@ -77,10 +77,12 @@
       <h1>Cuidar de quem um dia cuidou de você.</h1>
       <p>Gestão completa de pacientes, agenda e equipe da sua casa de repouso — em um só lugar.</p>
     </div>
+    {% if casa_preselecionar %}
     <div class="login-marca-rodape">
       <span class="login-marca-ponto"></span>
-      <span>{{ casa_preselecionar.nome if casa_preselecionar else 'Doce Lar Senior Care' }}</span>
+      <span>{{ casa_preselecionar.nome }}</span>
     </div>
+    {% endif %}
   </div>
 
   <div class="login-form">
