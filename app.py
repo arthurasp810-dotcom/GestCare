@@ -20,6 +20,18 @@ from apscheduler.schedulers.background import BackgroundScheduler
 app = Flask(__name__)
 app.secret_key = os.environ.get('GESTCARE_SECRET_KEY', 'casa-idosos-sistema-2026-troque-em-producao')
 
+
+@app.context_processor
+def injetar_versao_assets():
+    """Versão baseada no mtime do CSS, usada como ?v= para invalidar cache do navegador
+    sempre que o arquivo mudar (evita que usuários fiquem com estilo antigo em cache)."""
+    try:
+        css_path = os.path.join(app.static_folder, 'css', 'style.css')
+        versao_assets = str(int(os.path.getmtime(css_path)))
+    except OSError:
+        versao_assets = '1'
+    return dict(versao_assets=versao_assets)
+
 DB_PATH = os.path.join(os.path.dirname(__file__), 'database', 'casa_idosos.db')
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'static', 'uploads', 'exames')
 EXTENSOES_PERMITIDAS = {'pdf', 'png', 'jpg', 'jpeg', 'webp'}
